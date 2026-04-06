@@ -19,7 +19,9 @@
 		"./keyboard": "./src/keyboard.ts",
 		"./report": "./src/report.ts",
 		"./user": "./src/user.ts",
-		"./api": "./src/api.ts"
+		"./api": "./src/api.ts",
+		"./auth": "./src/auth.ts",
+		"./ml": "./src/ml.ts"
 	},
 	"peerDependencies": {
 		"typescript": "^5.3.3 || ^6.0.0"

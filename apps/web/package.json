@@ -17,7 +17,8 @@
 		"@pe/gsap": "workspace:*",
 		"@pe/tokens": "workspace:*",
 		"@pe/types": "workspace:*",
-		"@pe/ui": "workspace:*"
+		"@pe/ui": "workspace:*",
+		"maplibre-gl": "^5.22.0"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.1",

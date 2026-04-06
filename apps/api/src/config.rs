@@ -82,7 +82,7 @@ impl AppConfig {
         Self {
             bind_host: "127.0.0.1".to_string(),
             bind_port: 8080,
-            database_url: String::new(),
+            database_url: "sqlite::memory:?cache=shared".to_string(),
             jwt_secret: jwt_secret.to_string(),
             cors_allow_origins: vec![],
         }

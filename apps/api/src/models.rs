@@ -9,10 +9,13 @@ pub struct AuthUser {
     pub email: String,
 }
 
-/// Successful login or registration.
+/// Successful login, registration, or refresh.
 #[derive(Debug, Serialize)]
 pub struct AuthSuccess {
+    /// Short-lived access JWT (same semantics as `OAuth2` `access_token`; kept as `token` for older clients).
     pub token: String,
+    pub refresh_token: String,
+    pub expires_in: u64,
     pub user: AuthUser,
 }
 

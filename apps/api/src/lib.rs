@@ -3,6 +3,7 @@
 #![allow(clippy::missing_panics_doc)]
 
 pub mod config;
+pub mod db_url;
 pub mod errors;
 pub mod extractors;
 pub mod handlers;
@@ -18,7 +19,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use queue::MemoryQueue;
-use sqlx::sqlite::SqlitePoolOptions;
+use sqlx::any::{install_default_drivers, AnyPoolOptions};
 use tracing_subscriber::EnvFilter;
 
 /// Maximum JSON body size for `/api/v1/*` (auth and future POST endpoints).
@@ -45,9 +46,11 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     std::fs::create_dir_all("data")?;
 
-    let pool = SqlitePoolOptions::new()
+    install_default_drivers();
+    let db_url = db_url::normalize_database_url(&cfg.database_url);
+    let pool = AnyPoolOptions::new()
         .max_connections(5)
-        .connect(&cfg.database_url)
+        .connect(&db_url)
         .await?;
 
     sqlx::migrate!("./migrations").run(&pool).await?;

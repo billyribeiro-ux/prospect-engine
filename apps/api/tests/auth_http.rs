@@ -3,15 +3,20 @@
 use axum::body::{to_bytes, Body};
 use axum::http::{Request, StatusCode};
 use serde_json::{json, Value};
-use sqlx::sqlite::SqlitePool;
+use sqlx::any::{install_default_drivers, AnyPoolOptions};
 use tower::ServiceExt;
 
 use api::build_http_app;
 use api::config::AppConfig;
 use api::state::AppState;
 
-async fn test_pool() -> SqlitePool {
-    let pool = SqlitePool::connect("sqlite::memory:?cache=shared")
+async fn test_pool() -> sqlx::AnyPool {
+    install_default_drivers();
+    // Single connection: SQLite in-memory DB is per-connection unless shared cache is honored
+    // consistently by the driver; one connection avoids empty-schema races in integration tests.
+    let pool = AnyPoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:?cache=shared")
         .await
         .expect("pool");
     sqlx::migrate!("./migrations")
@@ -160,6 +165,51 @@ async fn register_invalid_email_returns_validation_with_code() {
     let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
     let val: Value = serde_json::from_slice(&bytes).expect("json");
     assert_eq!(val["code"], "validation");
+}
+
+#[tokio::test]
+async fn auth_refresh_returns_new_access_and_refresh_tokens() {
+    let pool = test_pool().await;
+    let secret = "integration-test-jwt-secret-32chars!!";
+    let state = AppState::for_tests(pool, secret);
+    let cfg = AppConfig::for_tests(secret);
+    let app = build_http_app(state, &cfg);
+
+    let reg = json!({
+        "email": "refresh@example.com",
+        "password": "correct-horse-battery-staple-unique"
+    });
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/v1/auth/register")
+        .header("content-type", "application/json")
+        .body(Body::from(reg.to_string()))
+        .expect("request");
+    let res = app.clone().oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let first: Value = serde_json::from_slice(&bytes).expect("json");
+    let refresh = first["refresh_token"].as_str().expect("refresh_token");
+
+    let refresh_body = json!({ "refresh_token": refresh });
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/v1/auth/refresh")
+        .header("content-type", "application/json")
+        .body(Body::from(refresh_body.to_string()))
+        .expect("refresh request");
+    let res = app.oneshot(req).await.expect("refresh response");
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let second: Value = serde_json::from_slice(&bytes).expect("json");
+    assert!(second["token"].as_str().is_some());
+    assert!(second["refresh_token"].as_str().is_some());
+    assert_ne!(
+        second["refresh_token"].as_str().unwrap(),
+        refresh,
+        "refresh token should rotate"
+    );
+    assert_eq!(second["expires_in"], 60 * 15);
 }
 
 #[tokio::test]

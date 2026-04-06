@@ -17,6 +17,11 @@ pub struct AuthBody {
     pub password: String,
 }
 
+#[derive(Deserialize)]
+pub struct RefreshBody {
+    pub refresh_token: String,
+}
+
 fn normalize_email(s: &str) -> String {
     s.trim().to_lowercase()
 }
@@ -78,9 +83,12 @@ pub async fn post_register(
 
     let hash = auth::hash_password(&body.password)?;
     let user_id = auth::insert_user(&state.pool, &email, &hash).await?;
-    let token = auth::issue_token(&state.jwt_secret, &user_id, &email)?;
+    let token = auth::issue_access_token(&state.jwt_secret, &user_id, &email)?;
+    let refresh_token = auth::store_refresh_token(&state.pool, &user_id).await?;
     Ok(Json(AuthSuccess {
         token,
+        refresh_token,
+        expires_in: auth::ACCESS_TOKEN_TTL_SECS,
         user: AuthUser { id: user_id, email },
     }))
 }
@@ -98,9 +106,34 @@ pub async fn post_login(
     if !auth::verify_password(&body.password, &hash)? {
         return Err(ApiError::Unauthorized);
     }
-    let token = auth::issue_token(&state.jwt_secret, &id, &email)?;
+    let token = auth::issue_access_token(&state.jwt_secret, &id, &email)?;
+    let refresh_token = auth::store_refresh_token(&state.pool, &id).await?;
     Ok(Json(AuthSuccess {
         token,
+        refresh_token,
+        expires_in: auth::ACCESS_TOKEN_TTL_SECS,
         user: AuthUser { id, email },
+    }))
+}
+
+pub async fn post_refresh(
+    State(state): State<AppState>,
+    Json(body): Json<RefreshBody>,
+) -> Result<Json<AuthSuccess>, ApiError> {
+    let plain = body.refresh_token.trim();
+    if plain.is_empty() {
+        return Err(ApiError::Validation("refresh_token is required".into()));
+    }
+    let user_id = auth::consume_refresh_token(&state.pool, plain).await?;
+    let email = auth::find_user_email(&state.pool, &user_id)
+        .await?
+        .ok_or(ApiError::Unauthorized)?;
+    let token = auth::issue_access_token(&state.jwt_secret, &user_id, &email)?;
+    let refresh_token = auth::store_refresh_token(&state.pool, &user_id).await?;
+    Ok(Json(AuthSuccess {
+        token,
+        refresh_token,
+        expires_in: auth::ACCESS_TOKEN_TTL_SECS,
+        user: AuthUser { id: user_id, email },
     }))
 }

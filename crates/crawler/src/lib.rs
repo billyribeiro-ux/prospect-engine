@@ -5,6 +5,8 @@ pub mod http;
 
 use thiserror::Error;
 
+pub use http::fetch_url;
+
 #[derive(Debug, Error)]
 pub enum CrawlError {
     #[error("fetch failed: {0}")]

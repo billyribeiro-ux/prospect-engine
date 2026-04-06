@@ -1,8 +1,10 @@
 pub mod audit;
 pub mod auth;
 pub mod discovery;
+pub mod email;
 pub mod health;
 pub mod jobs;
+pub mod leads;
 pub mod map;
 pub mod pipeline;
 pub mod reports;

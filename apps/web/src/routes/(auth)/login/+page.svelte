@@ -1,6 +1,7 @@
 <script lang="ts">
+import type { AuthSuccess } from "@pe/types/auth";
 import { goto } from "$app/navigation";
-import { setToken } from "$lib/auth/token";
+import { setAuthSession } from "$lib/auth/token";
 import { messages } from "$lib/i18n/messages/en";
 
 let loading = $state(false);
@@ -21,13 +22,13 @@ async function onsubmit(e: SubmitEvent): Promise<void> {
 				password: String(fd.get("password") ?? ""),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as { error?: string; token?: string };
+		const data = (await res.json().catch(() => ({}))) as { error?: string } & Partial<AuthSuccess>;
 		if (!res.ok) {
 			err = data.error ?? "Login failed";
 			return;
 		}
-		if (data.token) {
-			setToken(data.token);
+		if (data.token && data.refresh_token != null && data.expires_in != null) {
+			setAuthSession(data.token, data.refresh_token, data.expires_in);
 		}
 		await goto("/discover");
 	} finally {
