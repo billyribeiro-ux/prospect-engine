@@ -16,6 +16,7 @@ pub mod state;
 pub use state::AppState;
 
 use std::net::SocketAddr;
+use std::path::Path;
 use std::sync::Arc;
 
 use queue::MemoryQueue;
@@ -44,10 +45,17 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let cfg = config::load()?;
 
-    std::fs::create_dir_all("data")?;
+    // Relative paths (`./migrations`) and dev defaults assume the process cwd is `apps/api`.
+    let api_root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    std::env::set_current_dir(api_root).map_err(|e| {
+        tracing::error!(error = %e, path = %api_root.display(), "set cwd to api crate root");
+        e
+    })?;
 
     install_default_drivers();
     let db_url = db_url::normalize_database_url(&cfg.database_url);
+    tracing::debug!(%db_url, "database url (normalized)");
+    db_url::ensure_sqlite_parent_dir(&db_url)?;
     let pool = AnyPoolOptions::new()
         .max_connections(5)
         .connect(&db_url)

@@ -8,6 +8,7 @@ use tower::ServiceExt;
 
 use api::build_http_app;
 use api::config::AppConfig;
+use api::services::worker::durable_worker_tick_once;
 use api::state::AppState;
 
 async fn test_pool() -> sqlx::AnyPool {
@@ -267,4 +268,40 @@ async fn email_send_rate_limited_after_burst() {
     let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
     let val: Value = serde_json::from_slice(&bytes).expect("json");
     assert_eq!(val["code"], "rate_limited");
+}
+
+#[tokio::test]
+async fn durable_generic_job_completes_after_worker_tick() {
+    let pool = test_pool().await;
+    let secret = "integration-test-jwt-secret-32chars!!";
+    let state = AppState::for_tests(pool.clone(), secret);
+    let cfg = AppConfig::for_tests(secret);
+    let app = build_http_app(state, &cfg);
+
+    let body = json!({ "job_id": "  job-worker  " });
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/v1/jobs")
+        .header("content-type", "application/json")
+        .body(Body::from(body.to_string()))
+        .expect("request");
+    let res = app.clone().oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::ACCEPTED);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let val: Value = serde_json::from_slice(&bytes).expect("json");
+    let durable_id = val["durable_job_id"].as_str().expect("durable_job_id");
+
+    durable_worker_tick_once(&pool).await.expect("worker tick");
+
+    let req = Request::builder()
+        .method("GET")
+        .uri(format!("/api/v1/jobs/durable/{durable_id}"))
+        .body(Body::empty())
+        .expect("get durable");
+    let res = app.oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let row: Value = serde_json::from_slice(&bytes).expect("json");
+    assert_eq!(row["status"], "completed");
+    assert_eq!(row["result_summary"], "ack");
 }

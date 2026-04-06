@@ -20,16 +20,18 @@ cp .env.example .env   # set PE_API_ORIGIN; optional PE_JWT_SECRET / PE_DATABASE
 **Terminal 1 — API** (SQLite + JWT auth; creates `apps/api/data/`):
 
 ```bash
-cd apps/api && cargo run
+cargo run -p api
 ```
 
-**Terminal 2 — Web**:
+(From repo root; relative `PE_DATABASE_URL` values like `sqlite:data/pe.db` resolve under `apps/api`. You can also `cd apps/api && cargo run`.)
+
+**Terminal 2 — Web** (SvelteKit only; avoids starting Tauri with root `pnpm dev`):
 
 ```bash
-pnpm dev
+pnpm --filter @pe/web dev
 ```
 
-Open the SvelteKit app (default Vite port, often `5173`). Register at `/register`, then use the workspace shell. The SvelteKit server proxies `/api/v1/*` to `PE_API_ORIGIN` (default `http://127.0.0.1:8080`). The API also exposes **`POST /api/v1/jobs`** and **`GET /api/v1/queue/stats`** (in-memory queue for development).
+Open the SvelteKit app (default Vite port, often `http://127.0.0.1:5173`). Register at `/register`, then use the workspace shell. The SvelteKit server proxies `/api/v1/*` to `PE_API_ORIGIN` (default `http://127.0.0.1:8080` set in `.env` or `.env.example`). The API also exposes **`POST /api/v1/jobs`** and **`GET /api/v1/queue/stats`** (in-memory queue plus durable rows for development).
 
 ### API security notes
 

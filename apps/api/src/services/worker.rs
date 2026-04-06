@@ -16,6 +16,12 @@ pub async fn run_durable_worker(pool: AnyPool) {
     }
 }
 
+/// Single worker iteration: claim one pending job, run it, persist result.
+/// Exposed for integration tests; production uses [`run_durable_worker`].
+pub async fn durable_worker_tick_once(pool: &AnyPool) -> Result<(), sqlx::Error> {
+    tick(pool).await
+}
+
 async fn tick(pool: &AnyPool) -> Result<(), sqlx::Error> {
     let row: Option<(String, String, String)> = sqlx::query_as(
         "SELECT id, kind, payload FROM durable_jobs WHERE status = 'pending' ORDER BY created_at LIMIT 1",
