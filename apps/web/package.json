@@ -11,8 +11,10 @@
 	},
 	"dependencies": {
 		"@iconify/svelte": "^5.0.0",
+		"@pe/gsap": "workspace:*",
 		"@pe/tokens": "workspace:*",
-		"@pe/types": "workspace:*"
+		"@pe/types": "workspace:*",
+		"@pe/ui": "workspace:*"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.3.1",

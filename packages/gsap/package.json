@@ -1,0 +1,22 @@
+{
+	"name": "@pe/gsap",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "echo \"@pe/gsap: TypeScript library\"",
+		"check": "tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"gsap": "^3.12.7"
+	},
+	"exports": {
+		"./registry": "./src/registry.ts",
+		"./actions/fadeIn": "./src/actions/fadeIn.ts",
+		"./utils/reducedMotion": "./src/utils/reducedMotion.ts"
+	},
+	"devDependencies": {
+		"svelte": "^5.16.0",
+		"typescript": "^5.7.2"
+	}
+}

@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = [
+	"apps/api",
+	"crates/shared",
+	"crates/db",
+	"crates/crawler",
+	"crates/scorer",
+	"crates/discovery",
+	"crates/queue",
+]
+
+[workspace.package]
+edition = "2021"
+license = "LicenseRef-Proprietary"
