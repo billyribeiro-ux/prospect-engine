@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
+	"scripts": {
+		"check": "tsc -p tsconfig.json --noEmit"
+	},
 	"exports": {
 		"./theme": "./src/theme.ts",
 		"./business": "./src/business.ts",
@@ -17,5 +20,8 @@
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
+	},
+	"devDependencies": {
+		"typescript": "^5.7.2"
 	}
 }

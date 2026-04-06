@@ -13,6 +13,10 @@ class AppState {
 	openCommandPalette(): void {
 		this.commandPaletteOpen = true;
 	}
+
+	closeCommandPalette(): void {
+		this.commandPaletteOpen = false;
+	}
 }
 
 export const appState = new AppState();

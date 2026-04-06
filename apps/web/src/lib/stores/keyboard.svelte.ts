@@ -17,6 +17,13 @@ class KeyboardManager {
 		next.delete(id);
 		this.shortcuts = next;
 	}
+
+	runRegistered(id: string): void {
+		const action = this.shortcuts.get(id);
+		if (action) {
+			action();
+		}
+	}
 }
 
 export const keyboardManager = new KeyboardManager();

@@ -2,6 +2,9 @@
 	"name": "@pe/tokens",
 	"version": "1.0.0",
 	"private": true,
+	"scripts": {
+		"check": "node -e \"process.exit(0)\""
+	},
 	"exports": {
 		"./index.css": "./src/index.css",
 		"./primitives.css": "./src/primitives.css",
