@@ -7,13 +7,13 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 interface Props {
 	title?: string;
-	children?: Snippet;
+	children?: Snippet<[{ map: MaplibreMap | undefined }]>;
 }
 
 let { title = "Map", children }: Props = $props();
 
 let mapEl: HTMLDivElement | undefined;
-let map: MaplibreMap | undefined;
+let map = $state<MaplibreMap | undefined>();
 
 onMount(() => {
 	if (!browser || !mapEl) return;
@@ -37,7 +37,7 @@ onMount(() => {
 
 <div class="pe-map-view" role="region" aria-label={title}>
 	<div class="pe-map-view__canvas" bind:this={mapEl}></div>
-	{#if children}{@render children()}{/if}
+	{#if children}{@render children({ map })}{/if}
 </div>
 
 <style>

@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
 use axum::extract::State;
-use axum::http::StatusCode;
+use axum::http::{HeaderMap, StatusCode};
 use axum::Json;
 use lettre::message::{Mailbox, Message};
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{SmtpTransport, Transport};
+use rand::RngCore;
 use serde::Deserialize;
 use serde_json::json;
 use uuid::Uuid;
@@ -24,12 +25,47 @@ fn preview(s: &str) -> String {
     s.chars().take(500).collect()
 }
 
+fn client_key(headers: &HeaderMap) -> String {
+    headers
+        .get("x-forwarded-for")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| s.split(',').next().map(str::trim))
+        .map_or_else(|| "direct".to_string(), String::from)
+}
+
+fn gen_tracking_token() -> String {
+    let mut b = [0u8; 16];
+    rand::thread_rng().fill_bytes(&mut b);
+    hex::encode(b)
+}
+
+fn tracking_urls(state: &AppState, token: &str) -> serde_json::Value {
+    let open = format!("/api/v1/email/track/open/{token}");
+    let click = format!("/api/v1/email/track/click/{token}");
+    match &state.public_api_origin {
+        Some(o) => {
+            let base = o.trim_end_matches('/');
+            json!({
+                "openPixelUrl": format!("{base}{open}"),
+                "clickUrlTemplate": format!("{base}{click}?u="),
+            })
+        }
+        None => json!({
+            "openPixelUrl": open,
+            "clickUrlTemplate": format!("{click}?u="),
+        }),
+    }
+}
+
 /// Accepts a send request; delivers via SMTP when `PE_SMTP_*` is configured (see `docs/SECURITY.md`).
 #[allow(clippy::too_many_lines)]
 pub async fn post_send(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<SendEmailBody>,
 ) -> Result<(StatusCode, Json<serde_json::Value>), ApiError> {
+    state.email_rate.check(&client_key(&headers)).await?;
+
     let to = body.to.trim();
     if to.is_empty() {
         return Err(ApiError::Validation("to is required".into()));
@@ -41,11 +77,12 @@ pub async fn post_send(
     let id = Uuid::new_v4().to_string();
     let now = chrono::Utc::now().to_rfc3339();
     let preview_text = preview(&body.body);
+    let tracking_token = gen_tracking_token();
 
     let Some(smtp) = state.smtp.clone() else {
         sqlx::query(
-            "INSERT INTO email_events (id, recipient, subject, body_preview, status, detail, created_at) \
-             VALUES (?, ?, ?, ?, 'stub', ?, ?)",
+            "INSERT INTO email_events (id, recipient, subject, body_preview, status, detail, created_at, tracking_token, opens, clicks) \
+             VALUES (?, ?, ?, ?, 'stub', ?, ?, ?, 0, 0)",
         )
         .bind(&id)
         .bind(to)
@@ -55,6 +92,7 @@ pub async fn post_send(
             "PE_SMTP_HOST not set; message recorded only (no relay).".to_string(),
         ))
         .bind(&now)
+        .bind(&tracking_token)
         .execute(&state.pool)
         .await
         .map_err(|e| {
@@ -69,6 +107,7 @@ pub async fn post_send(
                 "id": id,
                 "to": to,
                 "subject": body.subject,
+                "tracking": tracking_urls(&state, &tracking_token),
             })),
         ));
     };
@@ -115,8 +154,8 @@ pub async fn post_send(
     };
 
     sqlx::query(
-        "INSERT INTO email_events (id, recipient, subject, body_preview, status, detail, created_at) \
-         VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO email_events (id, recipient, subject, body_preview, status, detail, created_at, tracking_token, opens, clicks) \
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0)",
     )
     .bind(&id)
     .bind(to)
@@ -125,6 +164,7 @@ pub async fn post_send(
     .bind(status)
     .bind(&detail)
     .bind(&now)
+    .bind(&tracking_token)
     .execute(&state.pool)
     .await
     .map_err(|e| {
@@ -141,6 +181,7 @@ pub async fn post_send(
             "id": id,
             "to": to,
             "subject": body.subject,
+            "tracking": tracking_urls(&state, &tracking_token),
         })),
     ))
 }

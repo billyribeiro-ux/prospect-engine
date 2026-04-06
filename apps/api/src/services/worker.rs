@@ -77,9 +77,7 @@ async fn run_kind(kind: &str, payload: &str) -> Result<String, String> {
                 .get("url")
                 .and_then(|x| x.as_str())
                 .ok_or_else(|| "payload.url missing".to_string())?;
-            let body = crawler::fetch_url(url)
-                .await
-                .map_err(|e| e.to_string())?;
+            let body = crawler::fetch_url(url).await.map_err(|e| e.to_string())?;
             Ok(format!("fetched {} bytes", body.len()))
         }
         "generic" => Ok("ack".to_string()),

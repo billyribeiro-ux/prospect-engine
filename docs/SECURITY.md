@@ -35,6 +35,9 @@ Never commit real secrets. Use `.env` only on developer machines; production sho
 
 - Outbound sends are recorded in **`email_events`** (`status`: `stub`, `sent`, or `failed`; optional `detail` for errors).
 - Without `PE_SMTP_HOST`, the API accepts requests (**202**) and persists a **stub** row only (no network relay).
+- **`POST /api/v1/email/send`** can be rate-limited per client IP (forwarded `X-Forwarded-For` or direct) via **`PE_EMAIL_RATE_LIMIT_PER_MIN`** (default **20**; set **`0`** to disable). Returns **429** with `code: rate_limited` when exceeded.
+- Optional open/click tracking uses per-send **`tracking_token`** values; pixel and redirect URLs are under **`/api/v1/email/track/open/{token}`** and **`/api/v1/email/track/click/{token}`**. Set **`PE_PUBLIC_API_ORIGIN`** when clients need absolute URLs in JSON responses.
+- Audits may use a headless Chromium **`--dump-dom`** pass when **`PE_CHROME_BIN`** points to a browser binary; otherwise HTML is fetched over HTTP only.
 
 ## Client-side token storage
 
@@ -52,6 +55,6 @@ The web app stores access and refresh tokens in browser storage (`localStorage`)
 | Credential stuffing | Argon2; generic errors on login; rate limiting can be added at the edge |
 | SQL injection | Parameterized queries via SQLx |
 | XSS stealing JWT | CSP + hygiene; document risk for reviewers |
-| SMTP abuse | Authenticate API routes for production sends; rate-limit `POST /email/send` at the edge |
+| SMTP abuse | Authenticate API routes for production sends; built-in per-IP rate limit on `POST /email/send` plus edge/WAF limits |
 
 This is not an exhaustive list; add network-level controls (TLS termination, WAF, IP allowlists) as required by your deployment.

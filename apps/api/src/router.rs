@@ -24,13 +24,24 @@ pub fn api_router(state: AppState) -> Router {
         .route("/pipeline", get(handlers::pipeline::get_pipeline))
         .route("/reports", get(handlers::reports::get_reports))
         .route("/reports/export", get(handlers::reports::get_report_pdf))
+        .route("/map/heatmap", get(handlers::map::get_map_heatmap))
+        .route("/map/route", get(handlers::map::get_map_route))
         .route("/map", get(handlers::map::get_map))
+        .route(
+            "/email/track/open/{token}",
+            get(handlers::email_track::get_open_pixel),
+        )
+        .route(
+            "/email/track/click/{token}",
+            get(handlers::email_track::get_click_redirect),
+        )
         .route("/email/send", post(handlers::email::post_send))
         .route(
             "/leads",
             get(handlers::leads::get_leads).post(handlers::leads::post_lead),
         )
         .route("/jobs", post(handlers::jobs::post_job))
+        .route("/jobs/durable/{id}", get(handlers::jobs::get_durable_job))
         .route("/queue/stats", get(handlers::jobs::get_queue_stats))
         .route("/ws", get(handlers::ws::ws_stub));
 

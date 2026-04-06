@@ -54,7 +54,8 @@ pub async fn get_click_redirect(
         return Err(ApiError::Validation("token required".into()));
     }
     let target = q.u.trim();
-    let parsed = url::Url::parse(target).map_err(|_| ApiError::Validation("invalid u URL".into()))?;
+    let parsed =
+        url::Url::parse(target).map_err(|_| ApiError::Validation("invalid u URL".into()))?;
     let scheme = parsed.scheme();
     if scheme != "http" && scheme != "https" {
         return Err(ApiError::Validation("u must be http or https".into()));

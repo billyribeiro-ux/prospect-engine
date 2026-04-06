@@ -29,17 +29,19 @@ onMount(() => {
 	</p>
 
 	<MapView title="Territory map">
-		<div class="map-layers">
-			<MarkerLayer count={markerCount} />
-			<HeatmapLayer visible={true} />
-			<div class="map-layers__row">
-				<label class="map-layers__toggle">
-					<input type="checkbox" bind:checked={routesOn} />
-					<span>Route overlay</span>
-				</label>
-				<RouteOverlay visible={routesOn} />
+		{#snippet children({ map })}
+			<div class="map-layers">
+				<MarkerLayer count={markerCount} />
+				<HeatmapLayer map={map} visible={true} />
+				<div class="map-layers__row">
+					<label class="map-layers__toggle">
+						<input type="checkbox" bind:checked={routesOn} />
+						<span>Route overlay</span>
+					</label>
+					<RouteOverlay map={map} visible={routesOn} />
+				</div>
 			</div>
-		</div>
+		{/snippet}
 	</MapView>
 </div>
 

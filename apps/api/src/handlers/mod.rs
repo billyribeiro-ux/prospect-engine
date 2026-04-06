@@ -2,6 +2,7 @@ pub mod audit;
 pub mod auth;
 pub mod discovery;
 pub mod email;
+pub mod email_track;
 pub mod health;
 pub mod jobs;
 pub mod leads;

@@ -28,7 +28,7 @@ impl MinuteWindowLimiter {
         }
         let mut g = self.inner.lock().await;
         let now = Instant::now();
-        let cutoff = now - Duration::from_secs(60);
+        let cutoff = now.checked_sub(Duration::from_secs(60)).unwrap_or(now);
         let v = g.entry(key.to_string()).or_default();
         v.retain(|t| *t > cutoff);
         if v.len() >= self.max_per_minute {

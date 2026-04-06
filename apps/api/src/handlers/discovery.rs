@@ -45,7 +45,7 @@ pub async fn get_discovery(
     })))
 }
 
-/// `POST /discovery/jobs` — enqueue a discovery job id (in-memory queue; durable scheduling = future).
+/// `POST /discovery/jobs` — enqueue a durable discovery job (background worker fetches URL).
 pub async fn post_discovery_job(
     State(state): State<AppState>,
     Json(body): Json<DiscoveryJobBody>,
@@ -54,17 +54,37 @@ pub async fn post_discovery_job(
     if url.is_empty() {
         return Err(ApiError::Validation("url is required".into()));
     }
-    let id = Uuid::new_v4();
-    let job_id = format!("discovery:{id}:{url}");
+    let mem_id = Uuid::new_v4();
+    let job_id = format!("discovery:{mem_id}:{url}");
     state.job_queue.enqueue(&job_id).await.map_err(|e| {
         tracing::error!(error = %e, "enqueue discovery job");
         ApiError::Internal
     })?;
+
+    let durable_id = Uuid::new_v4().to_string();
+    let now = chrono::Utc::now().to_rfc3339();
+    let payload = json!({ "url": url }).to_string();
+    sqlx::query(
+        "INSERT INTO durable_jobs (id, kind, payload, status, created_at, updated_at) \
+         VALUES (?, 'discovery', ?, 'pending', ?, ?)",
+    )
+    .bind(&durable_id)
+    .bind(&payload)
+    .bind(&now)
+    .bind(&now)
+    .execute(&state.pool)
+    .await
+    .map_err(|e| {
+        tracing::error!(error = %e, "durable discovery job");
+        ApiError::Internal
+    })?;
+
     Ok((
         StatusCode::ACCEPTED,
         Json(json!({
             "status": "queued",
             "job_id": job_id,
+            "durable_job_id": durable_id,
             "url": url,
         })),
     ))

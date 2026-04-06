@@ -144,8 +144,9 @@ Single **quality** job: Node **24.14.1**, Rust stable (fmt, clippy), `pnpm insta
 - Phase **3** MVP (§6): audit scoring, discovery jobs, CRM+map markers, SMTP-capable email, PDF export, wired workspace UI
 - Core shell routes + auth + API proxy + DB migrations
 - Tauri app present; optional native `build:tauri` for installers
-- Durable queues, full deliverability analytics, headless browser audits, and ML-backed scoring are **post-MVP** product depth.
+- **Implemented beyond baseline MVP**: durable job rows + background worker, open/click tracking (`/email/track/*`), per-IP rate limit on `POST /email/send` (`PE_EMAIL_RATE_LIMIT_PER_MIN`, `0` = off), optional headless DOM dump for audits (`PE_CHROME_BIN`), map heatmap + route endpoints and web overlays.
+- ML-backed scoring and full deliverability dashboards remain **post-MVP** product depth.
 
 ---
 
-*Last updated: Phase 3 MVP complete (scorer, SMTP + `email_events`, geo leads, discovery jobs, UI wiring); `pnpm run check` + build.*
+*Last updated: Phase 3 MVP + durable jobs, email tracking, email rate limit, headless audit option, map heatmap/route API + UI overlays.*
