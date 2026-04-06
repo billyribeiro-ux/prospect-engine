@@ -5,7 +5,7 @@ use axum::Router;
 
 use crate::errors::ApiError;
 use crate::handlers;
-use crate::AppState;
+use crate::state::AppState;
 
 pub fn api_router(state: AppState) -> Router {
     let v1 = Router::new()

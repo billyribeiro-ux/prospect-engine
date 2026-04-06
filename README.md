@@ -31,6 +31,12 @@ pnpm dev
 
 Open the SvelteKit app (default Vite port, often `5173`). Register at `/register`, then use the workspace shell. The SvelteKit server proxies `/api/v1/*` to `PE_API_ORIGIN` (default `http://127.0.0.1:8080`).
 
+### API security notes
+
+- **JWT signing**: Set `PE_JWT_SECRET` in production (minimum 32 characters; use a long random value from a secrets manager). The API signs session tokens with HS256; anyone who knows the secret can forge tokens.
+- **Client storage**: The web app may persist the JWT in the browser (for example `localStorage`). Treat that as sensitive: XSS in the app could exfiltrate tokens. Prefer tight CSP and dependency hygiene in production.
+- **SQLite file**: `PE_DATABASE_URL` points at a file on disk; restrict filesystem permissions and backups accordingly.
+
 ### Desktop (Tauri)
 
 From repo root after web deps are installed:

@@ -2,7 +2,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use argon2::password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString};
 use argon2::Argon2;
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
@@ -11,6 +11,8 @@ use uuid::Uuid;
 use crate::errors::ApiError;
 
 const JWT_TTL_SECS: u64 = 60 * 60 * 24 * 7;
+/// Clock skew leeway (seconds) for `exp` validation.
+const JWT_LEEWAY_SECS: u64 = 60;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
@@ -46,8 +48,9 @@ pub fn issue_token(jwt_secret: &str, user_id: &str, email: &str) -> Result<Strin
         email: email.to_string(),
         exp: exp_secs,
     };
+    let header = Header::new(Algorithm::HS256);
     encode(
-        &Header::default(),
+        &header,
         &claims,
         &EncodingKey::from_secret(jwt_secret.as_bytes()),
     )
@@ -55,13 +58,19 @@ pub fn issue_token(jwt_secret: &str, user_id: &str, email: &str) -> Result<Strin
 }
 
 pub fn verify_token(jwt_secret: &str, token: &str) -> Result<Claims, ApiError> {
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.leeway = JWT_LEEWAY_SECS;
     let data = decode::<Claims>(
         token,
         &DecodingKey::from_secret(jwt_secret.as_bytes()),
-        &Validation::default(),
+        &validation,
     )
     .map_err(|_| ApiError::Unauthorized)?;
-    Ok(data.claims)
+    let claims = data.claims;
+    if claims.sub.is_empty() || claims.email.is_empty() {
+        return Err(ApiError::Unauthorized);
+    }
+    Ok(claims)
 }
 
 pub async fn insert_user(
@@ -106,4 +115,34 @@ pub async fn find_user_by_email(
         ApiError::Internal
     })?;
     Ok(row)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hash_and_verify_roundtrip() {
+        let hash = hash_password("correct-horse-battery-staple-unique").expect("hash");
+        assert!(verify_password("correct-horse-battery-staple-unique", &hash).expect("verify"));
+        assert!(!verify_password("wrong-password", &hash).expect("verify bool"));
+    }
+
+    #[test]
+    fn jwt_roundtrip_and_claims() {
+        let secret = "unit-test-jwt-secret-min-32-chars!!";
+        let token = issue_token(secret, "user-id", "person@example.com").expect("issue");
+        let claims = verify_token(secret, &token).expect("verify");
+        assert_eq!(claims.sub, "user-id");
+        assert_eq!(claims.email, "person@example.com");
+    }
+
+    #[test]
+    fn jwt_rejects_tampered_token() {
+        let secret = "unit-test-jwt-secret-min-32-chars!!";
+        let token = issue_token(secret, "uid", "a@b.com").expect("issue");
+        let mut bad = token.clone();
+        bad.pop();
+        assert!(verify_token(secret, &bad).is_err());
+    }
 }
