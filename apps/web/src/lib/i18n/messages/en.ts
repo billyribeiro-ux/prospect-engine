@@ -68,8 +68,29 @@ export const messages = {
 		},
 		settings: {
 			intro:
-				"Appearance preferences are saved in your browser (cookies) and apply across the workspace.",
+				"Appearance preferences are saved in your browser (cookies) and apply across the workspace. Email relay settings are stored on the server.",
 			appearanceHeading: "Appearance",
+			smtp: {
+				sectionTitle: "Email (SMTP)",
+				sectionLead:
+					"Configure outbound mail relay for the workspace. Passwords are encrypted at rest using your server JWT secret. You can also set PE_SMTP_* environment variables; saved settings take precedence when enabled.",
+				activeSource: "Active relay:",
+				sourceDatabase: "Saved settings",
+				sourceEnvironment: "Environment variables",
+				sourceNone: "None (stub only)",
+				envHint: "Environment relay:",
+				enabled: "Use saved SMTP settings",
+				host: "SMTP host",
+				port: "Port",
+				username: "Username (optional)",
+				password: "Password (optional)",
+				passwordKeep: "Leave blank to keep the current password",
+				from: "From address",
+				save: "Save SMTP settings",
+				loadError: "Could not load SMTP settings.",
+				saveError: "Could not save SMTP settings.",
+				signInHint: "Sign in to configure SMTP for this workspace.",
+			},
 			customColors: {
 				sectionTitle: "Color overrides",
 				sectionLead:

@@ -13,7 +13,7 @@ pub struct AppState {
     pub jwt_secret: String,
     /// In-memory job queue (Phase 2 wiring; replace with durable queue in production).
     pub job_queue: Arc<MemoryQueue>,
-    /// When set, email handler sends via SMTP; otherwise stub + persistence only.
+    /// Env-based SMTP (`PE_SMTP_*`). Saved Settings SMTP overrides when enabled (see `smtp_settings`).
     pub smtp: Option<SmtpConfig>,
     /// Rolling per-minute cap on `POST /email/send` (keyed by `X-Forwarded-For` or `direct`).
     pub email_rate: Arc<MinuteWindowLimiter>,

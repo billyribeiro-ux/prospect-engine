@@ -1,6 +1,7 @@
 pub mod audit;
 pub mod auth;
 pub mod discovery;
+pub mod settings_smtp;
 pub mod email;
 pub mod email_track;
 pub mod health;

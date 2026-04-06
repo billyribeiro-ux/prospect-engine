@@ -14,6 +14,10 @@ pub fn api_router(state: AppState) -> Router {
         .route("/auth/register", post(handlers::auth::post_register))
         .route("/auth/login", post(handlers::auth::post_login))
         .route("/auth/refresh", post(handlers::auth::post_refresh))
+        .route(
+            "/settings/smtp",
+            get(handlers::settings_smtp::get_smtp).put(handlers::settings_smtp::put_smtp),
+        )
         .route("/discovery", get(handlers::discovery::get_discovery))
         .route(
             "/discovery/jobs",

@@ -39,6 +39,10 @@ fn bearer(headers: &HeaderMap) -> Option<String> {
     Some(trimmed.to_string())
 }
 
+pub(crate) fn bearer_token(headers: &HeaderMap) -> Option<String> {
+    bearer(headers)
+}
+
 fn validate_email(email: &str) -> Result<(), ApiError> {
     if !email_address::EmailAddress::is_valid(email) {
         return Err(ApiError::Validation("invalid email".into()));

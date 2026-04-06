@@ -1,6 +1,7 @@
 <script lang="ts">
 import ThemeControls from "$lib/components/layout/ThemeControls.svelte";
 import ThemeCustomizer from "$lib/components/layout/ThemeCustomizer.svelte";
+import SmtpSettingsSection from "$lib/components/settings/SmtpSettingsSection.svelte";
 import { messages } from "$lib/i18n/messages/en";
 </script>
 
@@ -32,6 +33,12 @@ import { messages } from "$lib/i18n/messages/en";
 	<section class="settings-panel">
 		<div class="settings-panel__surface settings-panel__surface--wide">
 			<ThemeCustomizer labels={messages.app.settings.customColors} />
+		</div>
+	</section>
+
+	<section class="settings-panel">
+		<div class="settings-panel__surface settings-panel__surface--wide">
+			<SmtpSettingsSection labels={messages.app.settings.smtp} />
 		</div>
 	</section>
 </div>

@@ -47,7 +47,7 @@ async function onSend(e: SubmitEvent): Promise<void> {
 		sendOk =
 			data.mode === "smtp"
 				? `Queued (${data.delivery ?? "smtp"}). Check server logs for delivery.`
-				: "Accepted (stub mode — configure PE_SMTP_HOST for live relay).";
+				: "Accepted (stub mode — configure SMTP in Settings or PE_SMTP_* for live relay).";
 	} finally {
 		sendLoading = false;
 	}
@@ -57,8 +57,9 @@ async function onSend(e: SubmitEvent): Promise<void> {
 <div class="workspace-page">
 	<h1 class="workspace-page__title">{messages.app.shell.nav.email}</h1>
 	<p class="workspace-page__body">
-		Compose outreach templates and send via the API. With <code class="workspace-page__code">PE_SMTP_HOST</code> set,
-		the server relays mail; otherwise requests are logged only.
+		Compose outreach templates and send via the API. Configure SMTP under <strong>Settings</strong> or set
+		<code class="workspace-page__code">PE_SMTP_*</code> on the server to relay mail; otherwise sends are logged
+		only (stub).
 	</p>
 
 	<TemplateEditor bind:value={template} />

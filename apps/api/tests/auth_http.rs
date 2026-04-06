@@ -266,3 +266,83 @@ async fn post_job_and_queue_stats_reflect_depth() {
     let val: Value = serde_json::from_slice(&bytes).expect("json");
     assert_eq!(val["depth"], 1);
 }
+
+#[tokio::test]
+async fn smtp_settings_get_requires_bearer() {
+    let pool = test_pool().await;
+    let secret = "integration-test-jwt-secret-32chars!!";
+    let state = AppState::for_tests(pool, secret);
+    let cfg = AppConfig::for_tests(secret);
+    let app = build_http_app(state, &cfg);
+
+    let req = Request::builder()
+        .method("GET")
+        .uri("/api/v1/settings/smtp")
+        .body(Body::empty())
+        .expect("request");
+    let res = app.oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn smtp_settings_get_put_roundtrip() {
+    let pool = test_pool().await;
+    let secret = "integration-test-jwt-secret-32chars!!";
+    let state = AppState::for_tests(pool, secret);
+    let cfg = AppConfig::for_tests(secret);
+    let app = build_http_app(state, &cfg);
+
+    let reg = json!({
+        "email": "smtp-settings@example.com",
+        "password": "correct-horse-battery-staple-unique"
+    });
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/v1/auth/register")
+        .header("content-type", "application/json")
+        .body(Body::from(reg.to_string()))
+        .expect("register");
+    let res = app.clone().oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let val: Value = serde_json::from_slice(&bytes).expect("json");
+    let token = val["token"].as_str().expect("token");
+
+    let req = Request::builder()
+        .method("GET")
+        .uri("/api/v1/settings/smtp")
+        .header("authorization", format!("Bearer {token}"))
+        .body(Body::empty())
+        .expect("get smtp");
+    let res = app.clone().oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let get0: Value = serde_json::from_slice(&bytes).expect("json");
+    assert_eq!(get0["enabled"], false);
+    assert_eq!(get0["active_source"], "none");
+
+    let put = json!({
+        "enabled": true,
+        "host": "smtp.example.com",
+        "port": 587,
+        "username": "relay",
+        "password": "secret-smtp-pass",
+        "from": "PE <noreply@example.com>"
+    });
+    let req = Request::builder()
+        .method("PUT")
+        .uri("/api/v1/settings/smtp")
+        .header("authorization", format!("Bearer {token}"))
+        .header("content-type", "application/json")
+        .body(Body::from(put.to_string()))
+        .expect("put smtp");
+    let res = app.clone().oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let saved: Value = serde_json::from_slice(&bytes).expect("json");
+    assert_eq!(saved["enabled"], true);
+    assert_eq!(saved["host"], "smtp.example.com");
+    assert_eq!(saved["has_password"], true);
+    assert_eq!(saved["active_source"], "database");
+    assert_eq!(saved["username"], "relay");
+}

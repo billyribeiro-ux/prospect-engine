@@ -12,6 +12,7 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::errors::ApiError;
+use crate::services::smtp_settings;
 use crate::AppState;
 
 #[derive(Deserialize)]
@@ -57,7 +58,7 @@ fn tracking_urls(state: &AppState, token: &str) -> serde_json::Value {
     }
 }
 
-/// Accepts a send request; delivers via SMTP when `PE_SMTP_*` is configured (see `docs/SECURITY.md`).
+/// Accepts a send request; delivers via SMTP when saved Settings SMTP or `PE_SMTP_*` is active.
 #[allow(clippy::too_many_lines)]
 pub async fn post_send(
     State(state): State<AppState>,
@@ -79,7 +80,14 @@ pub async fn post_send(
     let preview_text = preview(&body.body);
     let tracking_token = gen_tracking_token();
 
-    let Some(smtp) = state.smtp.clone() else {
+    let smtp = smtp_settings::resolve_effective_smtp(
+        &state.pool,
+        &state.jwt_secret,
+        state.smtp.clone(),
+    )
+    .await;
+
+    let Some(smtp) = smtp else {
         sqlx::query(
             "INSERT INTO email_events (id, recipient, subject, body_preview, status, detail, created_at, tracking_token, opens, clicks) \
              VALUES (?, ?, ?, ?, 'stub', ?, ?, ?, 0, 0)",
@@ -89,7 +97,8 @@ pub async fn post_send(
         .bind(&body.subject)
         .bind(&preview_text)
         .bind(Some(
-            "PE_SMTP_HOST not set; message recorded only (no relay).".to_string(),
+            "No SMTP relay configured. Add SMTP in Settings or set PE_SMTP_* environment variables."
+                .to_string(),
         ))
         .bind(&now)
         .bind(&tracking_token)
