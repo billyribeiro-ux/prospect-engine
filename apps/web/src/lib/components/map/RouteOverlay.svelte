@@ -4,12 +4,15 @@ import type { Map as MaplibreMap } from "maplibre-gl";
 interface Props {
 	map?: MaplibreMap;
 	visible?: boolean;
+	/** When set with `toId`, the route uses these lead ids instead of the first two markers. */
+	fromId?: string;
+	toId?: string;
 }
 
 const SOURCE_ID = "pe-route-src";
 const LAYER_ID = "pe-route-line";
 
-let { map, visible = false }: Props = $props();
+let { map, visible = false, fromId = "", toId = "" }: Props = $props();
 
 function removeRoute(m: MaplibreMap) {
 	if (m.getLayer(LAYER_ID)) m.removeLayer(LAYER_ID);
@@ -19,6 +22,8 @@ function removeRoute(m: MaplibreMap) {
 $effect(() => {
 	const m = map;
 	const on = visible;
+	const fid = fromId.trim();
+	const tid = toId.trim();
 	if (!m) return;
 	let cancelled = false;
 
@@ -31,12 +36,17 @@ $effect(() => {
 			markers?: { id: string }[];
 		};
 		const ids = mapData.markers ?? [];
-		const from = ids[0];
-		const to = ids[1];
-		if (!from || !to) return;
-		const fromId = from.id;
-		const toId = to.id;
-		const q = new URLSearchParams({ from_id: fromId, to_id: toId });
+		let from = fid;
+		let to = tid;
+		if (!from || !to) {
+			const a = ids[0];
+			const b = ids[1];
+			if (!a || !b) return;
+			from = a.id;
+			to = b.id;
+		}
+		if (from === to) return;
+		const q = new URLSearchParams({ from_id: from, to_id: to });
 		const routeRes = await fetch(`/api/v1/map/route?${q}`);
 		if (cancelled || !routeRes.ok) return;
 		const body = (await routeRes.json()) as {
@@ -106,7 +116,7 @@ $effect(() => {
 </script>
 
 <div class="pe-route-overlay" class:pe-route-overlay--on={visible} role="presentation">
-	<span class="pe-route-overlay__label">Route (first two markers)</span>
+	<span class="pe-route-overlay__label">Route (pick leads below)</span>
 </div>
 
 <style>

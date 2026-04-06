@@ -25,12 +25,22 @@ impl AppState {
     /// Builds state for integration tests (in-memory DB wired separately).
     #[must_use]
     pub fn for_tests(pool: AnyPool, jwt_secret: impl Into<String>) -> Self {
+        Self::for_tests_with_email_rate(pool, jwt_secret, 0)
+    }
+
+    /// Like [`for_tests`](Self::for_tests), with a non-zero per-minute cap on `POST /email/send`.
+    #[must_use]
+    pub fn for_tests_with_email_rate(
+        pool: AnyPool,
+        jwt_secret: impl Into<String>,
+        email_rate_per_min: u32,
+    ) -> Self {
         Self {
             pool,
             jwt_secret: jwt_secret.into(),
             job_queue: Arc::new(MemoryQueue::new()),
             smtp: None,
-            email_rate: Arc::new(MinuteWindowLimiter::new(0)),
+            email_rate: Arc::new(MinuteWindowLimiter::new(email_rate_per_min as usize)),
             public_api_origin: None,
         }
     }

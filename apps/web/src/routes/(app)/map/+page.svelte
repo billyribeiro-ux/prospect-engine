@@ -8,15 +8,37 @@ import { messages } from "$lib/i18n/messages/en";
 
 let routesOn = $state(false);
 let markerCount = $state(0);
+let markers = $state<{ id: string; label: string }[]>([]);
+let routeFromId = $state("");
+let routeToId = $state("");
 
 onMount(() => {
 	void (async () => {
 		try {
 			const res = await fetch("/api/v1/map");
-			const data = (await res.json()) as { markers?: unknown[] };
-			markerCount = data.markers?.length ?? 0;
+			const data = (await res.json()) as {
+				markers?: { id: string; label?: string }[];
+			};
+			const raw = data.markers ?? [];
+			markers = raw.map((m) => ({
+				id: m.id,
+				label: m.label?.trim() ? m.label : m.id,
+			}));
+			markerCount = markers.length;
+			const a = markers[0];
+			const b = markers[1];
+			if (markers.length >= 2 && a && b) {
+				routeFromId = a.id;
+				routeToId = b.id;
+			} else {
+				routeFromId = "";
+				routeToId = "";
+			}
 		} catch {
+			markers = [];
 			markerCount = 0;
+			routeFromId = "";
+			routeToId = "";
 		}
 	})();
 });
@@ -38,8 +60,33 @@ onMount(() => {
 						<input type="checkbox" bind:checked={routesOn} />
 						<span>Route overlay</span>
 					</label>
-					<RouteOverlay map={map} visible={routesOn} />
+					<RouteOverlay
+						map={map}
+						visible={routesOn}
+						fromId={routeFromId}
+						toId={routeToId}
+					/>
 				</div>
+				{#if routesOn && markers.length >= 2}
+					<div class="map-route-pick">
+						<label class="map-route-pick__field">
+							<span class="map-route-pick__label">From</span>
+							<select bind:value={routeFromId} class="map-route-pick__select">
+								{#each markers as m (m.id)}
+									<option value={m.id}>{m.label}</option>
+								{/each}
+							</select>
+						</label>
+						<label class="map-route-pick__field">
+							<span class="map-route-pick__label">To</span>
+							<select bind:value={routeToId} class="map-route-pick__select">
+								{#each markers as m (m.id)}
+									<option value={m.id}>{m.label}</option>
+								{/each}
+							</select>
+						</label>
+					</div>
+				{/if}
 			</div>
 		{/snippet}
 	</MapView>
@@ -82,6 +129,36 @@ onMount(() => {
 			font-family: var(--pe-font-family);
 			font-size: var(--pe-font-size-sm);
 			color: var(--pe-text-secondary);
+		}
+
+		.map-route-pick {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-end;
+			gap: var(--pe-space-4);
+		}
+
+		.map-route-pick__field {
+			display: flex;
+			flex-direction: column;
+			gap: var(--pe-space-1);
+			font-family: var(--pe-font-family);
+			font-size: var(--pe-font-size-sm);
+			color: var(--pe-text-secondary);
+		}
+
+		.map-route-pick__label {
+			font-weight: 500;
+		}
+
+		.map-route-pick__select {
+			min-inline-size: 10rem;
+			padding: var(--pe-space-2) var(--pe-space-2);
+			border-radius: var(--pe-radius-sm);
+			border: 1px solid var(--pe-border-default);
+			background: var(--pe-surface-default);
+			color: var(--pe-text-primary);
+			font: inherit;
 		}
 	}
 </style>

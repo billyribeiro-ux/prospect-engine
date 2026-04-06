@@ -136,6 +136,12 @@ impl AppConfig {
     /// Builds a minimal config for integration tests (permissive CORS when origins are empty).
     #[must_use]
     pub fn for_tests(jwt_secret: &str) -> Self {
+        Self::for_tests_with_email_rate(jwt_secret, 0)
+    }
+
+    /// Test config with a specific email rate limit (mirrors [`AppState::for_tests_with_email_rate`](crate::state::AppState::for_tests_with_email_rate)).
+    #[must_use]
+    pub fn for_tests_with_email_rate(jwt_secret: &str, email_rate_per_min: u32) -> Self {
         Self {
             bind_host: "127.0.0.1".to_string(),
             bind_port: 8080,
@@ -143,7 +149,7 @@ impl AppConfig {
             jwt_secret: jwt_secret.to_string(),
             cors_allow_origins: vec![],
             smtp: None,
-            email_rate_limit_per_min: 0,
+            email_rate_limit_per_min: email_rate_per_min,
             public_api_origin: None,
         }
     }
