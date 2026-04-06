@@ -1,0 +1,14 @@
+{
+	"name": "@pe/desktop",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "tauri dev",
+		"build": "node -e \"process.exit(0)\"",
+		"build:tauri": "tauri build",
+		"check": "node -e \"process.exit(0)\""
+	},
+	"devDependencies": {
+		"@tauri-apps/cli": "^2.10.1"
+	}
+}

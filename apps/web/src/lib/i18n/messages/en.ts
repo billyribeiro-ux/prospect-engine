@@ -32,6 +32,7 @@ export const messages = {
 				pipeline: "Pipeline",
 				map: "Map",
 				reports: "Reports",
+				email: "Email",
 				settings: "Settings",
 			},
 		},

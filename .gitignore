@@ -10,5 +10,7 @@ dist
 *.log
 .turbo
 /target
+data/
+apps/api/data/
 **/__pycache__
 .venv

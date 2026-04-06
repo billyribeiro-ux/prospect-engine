@@ -7,6 +7,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum CrawlError {
-	#[error("fetch failed: {0}")]
-	Fetch(String),
+    #[error("fetch failed: {0}")]
+    Fetch(String),
 }

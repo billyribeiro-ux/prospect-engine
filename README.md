@@ -14,15 +14,32 @@ Monorepo for **ProspectEngine**: discovery, auditing, CRM pipeline, map, and rep
 ```bash
 nvm use   # or install Node 24.14.1
 pnpm install
-cp .env.example .env   # if present; configure PE_API_ORIGIN for API proxy
-pnpm dev
+cp .env.example .env   # set PE_API_ORIGIN; optional PE_JWT_SECRET / PE_DATABASE_URL
 ```
 
-Open the SvelteKit app (default Vite port, often `5173`). Run the API from `apps/api` when testing the proxy:
+**Terminal 1 — API** (SQLite + JWT auth; creates `apps/api/data/`):
 
 ```bash
 cd apps/api && cargo run
 ```
+
+**Terminal 2 — Web**:
+
+```bash
+pnpm dev
+```
+
+Open the SvelteKit app (default Vite port, often `5173`). Register at `/register`, then use the workspace shell. The SvelteKit server proxies `/api/v1/*` to `PE_API_ORIGIN` (default `http://127.0.0.1:8080`).
+
+### Desktop (Tauri)
+
+From repo root after web deps are installed:
+
+```bash
+cd apps/desktop && pnpm dev
+```
+
+Production installers: `pnpm build:tauri` (requires platform tooling). CI uses a no-op `build` for `@pe/desktop` so pipelines do not require Tauri bundling.
 
 ## Scripts
 
