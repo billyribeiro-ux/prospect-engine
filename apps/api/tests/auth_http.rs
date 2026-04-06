@@ -25,10 +25,7 @@ async fn test_pool() -> SqlitePool {
 async fn register_then_session_with_bearer_and_request_id() {
     let pool = test_pool().await;
     let secret = "integration-test-jwt-secret-32chars!!";
-    let state = AppState {
-        pool,
-        jwt_secret: secret.to_string(),
-    };
+    let state = AppState::for_tests(pool, secret);
     let cfg = AppConfig::for_tests(secret);
     let app = build_http_app(state, &cfg);
 
@@ -70,10 +67,7 @@ async fn register_then_session_with_bearer_and_request_id() {
 async fn login_returns_token_for_existing_user() {
     let pool = test_pool().await;
     let secret = "integration-test-jwt-secret-32chars!!";
-    let state = AppState {
-        pool,
-        jwt_secret: secret.to_string(),
-    };
+    let state = AppState::for_tests(pool, secret);
     let cfg = AppConfig::for_tests(secret);
     let app = build_http_app(state, &cfg);
 
@@ -112,10 +106,7 @@ async fn login_returns_token_for_existing_user() {
 async fn register_duplicate_email_returns_conflict_with_code() {
     let pool = test_pool().await;
     let secret = "integration-test-jwt-secret-32chars!!";
-    let state = AppState {
-        pool,
-        jwt_secret: secret.to_string(),
-    };
+    let state = AppState::for_tests(pool, secret);
     let cfg = AppConfig::for_tests(secret);
     let app = build_http_app(state, &cfg);
 
@@ -150,10 +141,7 @@ async fn register_duplicate_email_returns_conflict_with_code() {
 async fn register_invalid_email_returns_validation_with_code() {
     let pool = test_pool().await;
     let secret = "integration-test-jwt-secret-32chars!!";
-    let state = AppState {
-        pool,
-        jwt_secret: secret.to_string(),
-    };
+    let state = AppState::for_tests(pool, secret);
     let cfg = AppConfig::for_tests(secret);
     let app = build_http_app(state, &cfg);
 
@@ -178,10 +166,7 @@ async fn register_invalid_email_returns_validation_with_code() {
 async fn login_unknown_user_returns_unauthorized_without_code_leak() {
     let pool = test_pool().await;
     let secret = "integration-test-jwt-secret-32chars!!";
-    let state = AppState {
-        pool,
-        jwt_secret: secret.to_string(),
-    };
+    let state = AppState::for_tests(pool, secret);
     let cfg = AppConfig::for_tests(secret);
     let app = build_http_app(state, &cfg);
 
@@ -200,4 +185,34 @@ async fn login_unknown_user_returns_unauthorized_without_code_leak() {
     let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
     let val: Value = serde_json::from_slice(&bytes).expect("json");
     assert_eq!(val["code"], "unauthorized");
+}
+
+#[tokio::test]
+async fn post_job_and_queue_stats_reflect_depth() {
+    let pool = test_pool().await;
+    let secret = "integration-test-jwt-secret-32chars!!";
+    let state = AppState::for_tests(pool, secret);
+    let cfg = AppConfig::for_tests(secret);
+    let app = build_http_app(state, &cfg);
+
+    let body = json!({ "job_id": "  job-42  " });
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/v1/jobs")
+        .header("content-type", "application/json")
+        .body(Body::from(body.to_string()))
+        .expect("request");
+    let res = app.clone().oneshot(req).await.expect("response");
+    assert_eq!(res.status(), StatusCode::ACCEPTED);
+
+    let req = Request::builder()
+        .method("GET")
+        .uri("/api/v1/queue/stats")
+        .body(Body::empty())
+        .expect("stats");
+    let res = app.oneshot(req).await.expect("stats response");
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = to_bytes(res.into_body(), usize::MAX).await.expect("body");
+    let val: Value = serde_json::from_slice(&bytes).expect("json");
+    assert_eq!(val["depth"], 1);
 }

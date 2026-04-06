@@ -41,6 +41,7 @@ dependencies = [
  "chrono",
  "email_address",
  "jsonwebtoken",
+ "queue",
  "rand",
  "serde",
  "serde_json",

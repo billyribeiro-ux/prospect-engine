@@ -18,6 +18,8 @@ pub fn api_router(state: AppState) -> Router {
         .route("/pipeline", get(handlers::pipeline::get_pipeline))
         .route("/reports", get(handlers::reports::get_reports))
         .route("/map", get(handlers::map::get_map))
+        .route("/jobs", post(handlers::jobs::post_job))
+        .route("/queue/stats", get(handlers::jobs::get_queue_stats))
         .route("/ws", get(handlers::ws::ws_stub));
 
     Router::new()

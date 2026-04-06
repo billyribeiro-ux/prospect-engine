@@ -29,6 +29,12 @@ impl MemoryQueue {
         let mut g = self.inner.lock().await;
         g.drain(..).collect()
     }
+
+    /// Current number of jobs waiting (FIFO depth).
+    pub async fn depth(&self) -> usize {
+        let g = self.inner.lock().await;
+        g.len()
+    }
 }
 
 impl Default for MemoryQueue {

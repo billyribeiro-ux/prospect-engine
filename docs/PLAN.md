@@ -39,8 +39,8 @@ prospect-engine/
 ├── packages/{tokens,types,ui,gsap}
 ├── crates/{shared,db,crawler,scorer,discovery,queue}
 ├── services/ml/        # FastAPI + worker stub
-├── .github/workflows/  # CI (Biome, turbo check, web build, fmt, clippy)
-├── docs/PLAN.md
+├── .github/workflows/  # CI (Biome, turbo check, web build, fmt, clippy, tests)
+├── docs/{PLAN,SECURITY}.md
 └── .env.example
 ```
 
@@ -61,8 +61,10 @@ prospect-engine/
   - `POST /api/v1/auth/register` — body `{ email, password }` (password ≥ 8)
   - `POST /api/v1/auth/login`
   - `GET /api/v1/auth/session` — optional `Authorization: Bearer <jwt>`
-- Stubs: discovery, audit, pipeline, reports, map, `GET /api/v1/ws` → 501
-- Env: `PE_DATABASE_URL` (default `sqlite:data/pe.db`), `PE_JWT_SECRET` (required in release, ≥ 32 chars)
+- Stubs: discovery, audit, pipeline, reports, map, `GET /api/v1/ws` → **501** (`websocket_not_implemented`)
+- **Jobs queue** (in-memory): `POST /api/v1/jobs` `{ job_id }` → **202**; `GET /api/v1/queue/stats` → `{ depth }` (uses `crates/queue` `MemoryQueue`)
+- Env: `PE_DATABASE_URL` (default `sqlite:data/pe.db`), `PE_JWT_SECRET` (required in release, ≥ 32 chars), `PE_CORS_ALLOW_ORIGINS` (comma-separated; **required in release**; debug may omit → permissive CORS with warning)
+- Enterprise hardening checklist: **§6 Phase 2b**
 
 ---
 
@@ -80,7 +82,16 @@ prospect-engine/
 - [x] **Auth**: Argon2 + JWT + SQLite + sqlx migrations
 - [ ] Refresh tokens / cookie sessions (optional)
 - [ ] PostgreSQL + sqlx compile-time queries in `crates/db` (optional migration path)
-- [ ] Idempotent jobs + **queue consumer** wired to API (queue crate has `MemoryQueue`)
+- [x] **Job queue wired to API**: `MemoryQueue` in `AppState` (`apps/api/src/state.rs`); `POST /api/v1/jobs`, `GET /api/v1/queue/stats` (background consumer / idempotency = future work)
+
+### Phase 2b — Enterprise API hardening — **done**
+
+- [x] Structured JSON errors with stable `code` (aligned with `packages/types` `ApiErrorCode`)
+- [x] `PE_CORS_ALLOW_ORIGINS`: explicit allowlist in **release**; permissive in **debug** when unset (warn)
+- [x] Security response headers: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`
+- [x] Request correlation: `x-request-id` (UUID) + `http_request` trace spans with `request_id`
+- [x] HTTP integration tests (`apps/api/tests/`) against full middleware stack (`build_http_app`)
+- [x] **`docs/SECURITY.md`** — auth model, secrets, HTTP surface, client token storage, observability
 
 ### Phase 3 — Domain features — **partial**
 
@@ -112,7 +123,7 @@ prospect-engine/
 |---------|---------|
 | `pnpm install` | Install JS deps |
 | `pnpm dev` | Turbo dev (web; run API separately) |
-| `pnpm run check` | `turbo run check` + `cargo clippy -- -D warnings` |
+| `pnpm run check` | `pnpm run lint` + `turbo run check` + `cargo fmt --check` + `cargo clippy --workspace --all-targets -- -D warnings` + `cargo test --workspace` |
 | `pnpm run build` | Turbo production build |
 | `cd apps/api && cargo run` | API + SQLite migrations |
 | `cd apps/desktop && pnpm dev` | Tauri + web dev server |
@@ -121,18 +132,18 @@ prospect-engine/
 
 ## 8. CI
 
-GitHub Actions: Node **24.14.1**, `pnpm install --frozen-lockfile`, Biome, turbo check, turbo build, `cargo fmt --check`, `cargo clippy -D warnings`.
+Single **quality** job: Node **24.14.1**, Rust stable (fmt, clippy), `pnpm install --frozen-lockfile`, then **`pnpm run check`** (Biome + turbo check + `cargo fmt --check` + clippy `--all-targets` + workspace tests), then **`pnpm run build`**.
 
 ---
 
 ## 9. Definition of done (this repo)
 
-- `pnpm run check` green on Node **24.14.1**
-- `cargo clippy --workspace -- -D warnings` green
+- `pnpm run check` green on Node **24.14.1** (includes Biome, `cargo fmt --check`, clippy, tests)
+- Phase **2b** items (§6) satisfied for review builds
 - Core shell routes + auth + API proxy + SQLite auth DB
 - Tauri app present; optional native `build:tauri` for installers
 - Further product depth (crawler, MapLibre, SMTP, PDF) is **Phase 3+** work, not missing scaffolding.
 
 ---
 
-*Last updated: Phase 2 auth, email route, Tauri desktop, queue MemoryQueue, ML worker stub, CI, and clippy in root `check`.*
+*Last updated: Phase 2 job queue wired (`MemoryQueue` + HTTP endpoints); root `check` includes lint + fmt; CI is a single job running `pnpm run check` + build.*

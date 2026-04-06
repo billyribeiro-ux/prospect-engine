@@ -15,7 +15,9 @@ pub mod state;
 pub use state::AppState;
 
 use std::net::SocketAddr;
+use std::sync::Arc;
 
+use queue::MemoryQueue;
 use sqlx::sqlite::SqlitePoolOptions;
 use tracing_subscriber::EnvFilter;
 
@@ -53,6 +55,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let state = AppState {
         pool,
         jwt_secret: cfg.jwt_secret.clone(),
+        job_queue: Arc::new(MemoryQueue::new()),
     };
 
     let app = build_http_app(state, &cfg);

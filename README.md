@@ -29,7 +29,7 @@ cd apps/api && cargo run
 pnpm dev
 ```
 
-Open the SvelteKit app (default Vite port, often `5173`). Register at `/register`, then use the workspace shell. The SvelteKit server proxies `/api/v1/*` to `PE_API_ORIGIN` (default `http://127.0.0.1:8080`).
+Open the SvelteKit app (default Vite port, often `5173`). Register at `/register`, then use the workspace shell. The SvelteKit server proxies `/api/v1/*` to `PE_API_ORIGIN` (default `http://127.0.0.1:8080`). The API also exposes **`POST /api/v1/jobs`** and **`GET /api/v1/queue/stats`** (in-memory queue for development).
 
 ### API security notes
 
@@ -56,7 +56,7 @@ Production installers: `pnpm build:tauri` (requires platform tooling). CI uses a
 |--------|-------------|
 | `pnpm dev` | Development via Turbo |
 | `pnpm run build` | Production build |
-| `pnpm run check` | Typecheck/lint tasks + `cargo check --workspace` |
+| `pnpm run check` | Biome + turbo check + `cargo fmt` / clippy / tests (see `docs/PLAN.md` §7) |
 | `pnpm run lint` | Biome check |
 | `pnpm run format` | Biome format |
 
