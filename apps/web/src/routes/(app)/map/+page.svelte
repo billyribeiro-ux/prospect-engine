@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { messages } from "$lib/i18n/messages/en";
+import { messages } from "$lib/i18n/messages/en";
 </script>
 
 <div class="workspace-page">

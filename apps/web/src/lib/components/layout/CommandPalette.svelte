@@ -1,58 +1,58 @@
 <script lang="ts">
-	import Icon from "@iconify/svelte";
-	import { tick } from "svelte";
-	import { APP_NAV_ITEMS } from "$lib/constants/navigation";
-	import type { ShellNavLabels } from "$lib/i18n/messages/en";
-	import { appState } from "$lib/stores/app.svelte";
+import Icon from "@iconify/svelte";
+import { tick } from "svelte";
+import { APP_NAV_ITEMS } from "$lib/constants/navigation";
+import type { ShellNavLabels } from "$lib/i18n/messages/en";
+import { appState } from "$lib/stores/app.svelte";
 
-	interface Props {
-		readonly navLabels: ShellNavLabels;
-		readonly title: string;
-		readonly searchPlaceholder: string;
-		readonly emptyLabel: string;
-		readonly closeLabel: string;
+interface Props {
+	readonly navLabels: ShellNavLabels;
+	readonly title: string;
+	readonly searchPlaceholder: string;
+	readonly emptyLabel: string;
+	readonly closeLabel: string;
+}
+
+let { navLabels, title, searchPlaceholder, emptyLabel, closeLabel }: Props = $props();
+
+let query = $state("");
+let queryInput = $state<HTMLInputElement | undefined>(undefined);
+
+const filteredItems = $derived.by(() => {
+	const q = query.trim().toLowerCase();
+	if (q.length === 0) {
+		return APP_NAV_ITEMS;
 	}
-
-	let { navLabels, title, searchPlaceholder, emptyLabel, closeLabel }: Props = $props();
-
-	let query = $state("");
-	let queryInput = $state<HTMLInputElement | undefined>(undefined);
-
-	const filteredItems = $derived.by(() => {
-		const q = query.trim().toLowerCase();
-		if (q.length === 0) {
-			return APP_NAV_ITEMS;
-		}
-		return APP_NAV_ITEMS.filter((item) => {
-			const label = navLabels[item.id].toLowerCase();
-			return label.includes(q);
-		});
+	return APP_NAV_ITEMS.filter((item) => {
+		const label = navLabels[item.id].toLowerCase();
+		return label.includes(q);
 	});
+});
 
-	function labelFor(id: (typeof APP_NAV_ITEMS)[number]["id"]): string {
-		return navLabels[id];
+function labelFor(id: (typeof APP_NAV_ITEMS)[number]["id"]): string {
+	return navLabels[id];
+}
+
+$effect(() => {
+	if (!appState.commandPaletteOpen) {
+		query = "";
+		return;
 	}
-
-	$effect(() => {
-		if (!appState.commandPaletteOpen) {
-			query = "";
-			return;
-		}
-		void tick().then(() => {
-			queryInput?.focus();
-		});
+	void tick().then(() => {
+		queryInput?.focus();
 	});
+});
 
-	function onOverlayClick(): void {
+function onOverlayClick(): void {
+	appState.closeCommandPalette();
+}
+
+function onOverlayKeydown(event: KeyboardEvent): void {
+	if (event.key === "Escape") {
+		event.preventDefault();
 		appState.closeCommandPalette();
 	}
-
-	function onOverlayKeydown(event: KeyboardEvent): void {
-		if (event.key === "Escape") {
-			event.preventDefault();
-			appState.closeCommandPalette();
-		}
-	}
+}
 </script>
 
 {#if appState.commandPaletteOpen}

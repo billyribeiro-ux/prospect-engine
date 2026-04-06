@@ -3,8 +3,8 @@ name = "pe-ml"
 version = "1.0.0"
 requires-python = ">=3.11"
 dependencies = [
-  "fastapi>=0.115.0",
-  "uvicorn[standard]>=0.32.0",
+  "fastapi>=0.135.0",
+  "uvicorn[standard]>=0.44.0",
 ]
 
 [tool.ruff]

@@ -1,7 +1,6 @@
+import type { DensityMode, ThemeId } from "@pe/types/theme";
 import { browser } from "$app/environment";
 import { invalidate } from "$app/navigation";
-import type { DensityMode } from "@pe/types/theme";
-import type { ThemeId } from "@pe/types/theme";
 import {
 	DENSITY_COOKIE_NAME,
 	PREFERENCE_COOKIE_MAX_AGE_SECONDS,
@@ -31,6 +30,7 @@ class ThemeEngine {
 			return;
 		}
 		document.documentElement.dataset.theme = theme;
+		// biome-ignore lint/suspicious/noDocumentCookie: SvelteKit theme cookie sync (Cookie Store API not assumed)
 		document.cookie = `${THEME_COOKIE_NAME}=${theme}; Path=/; Max-Age=${String(PREFERENCE_COOKIE_MAX_AGE_SECONDS)}; SameSite=Lax`;
 		await invalidate("app:theme");
 	}
@@ -44,6 +44,7 @@ class ThemeEngine {
 			return;
 		}
 		document.documentElement.dataset.density = density;
+		// biome-ignore lint/suspicious/noDocumentCookie: SvelteKit density cookie sync (Cookie Store API not assumed)
 		document.cookie = `${DENSITY_COOKIE_NAME}=${density}; Path=/; Max-Age=${String(PREFERENCE_COOKIE_MAX_AGE_SECONDS)}; SameSite=Lax`;
 		await invalidate("app:theme");
 	}

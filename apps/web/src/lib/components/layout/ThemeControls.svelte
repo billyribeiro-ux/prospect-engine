@@ -1,7 +1,6 @@
 <script lang="ts">
 import Icon from "@iconify/svelte";
-import type { DensityMode } from "@pe/types/theme";
-import type { ThemeId } from "@pe/types/theme";
+import type { DensityMode, ThemeId } from "@pe/types/theme";
 import { themeState } from "$lib/stores/theme.svelte";
 
 interface Props {

@@ -18,10 +18,7 @@ export const virtualScroll: Action<HTMLElement, VirtualScrollParams> = (node, in
 		const rect = node.getBoundingClientRect();
 		const viewSize = rect.height;
 		const overscan = params.overscan ?? 3;
-		const startIndex = Math.max(
-			0,
-			Math.floor(node.scrollTop / params.estimateSizePx) - overscan
-		);
+		const startIndex = Math.max(0, Math.floor(node.scrollTop / params.estimateSizePx) - overscan);
 		const visibleCount = Math.ceil(viewSize / params.estimateSizePx) + overscan * 2;
 		const endIndex = Math.min(params.itemCount - 1, startIndex + visibleCount);
 		params.onRangeChange(startIndex, endIndex);

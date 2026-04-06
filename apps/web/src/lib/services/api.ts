@@ -16,7 +16,7 @@ function isApiClientError(value: unknown): value is ApiClientError {
 
 export async function apiFetchJson<T>(
 	path: string,
-	init?: RequestInit & { readonly timeoutMs?: number }
+	init?: RequestInit & { readonly timeoutMs?: number },
 ): Promise<T> {
 	const timeoutMs = init?.timeoutMs ?? DEFAULT_API_TIMEOUT_MS;
 	const controller = new AbortController();

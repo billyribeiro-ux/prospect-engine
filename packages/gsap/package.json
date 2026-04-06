@@ -3,20 +3,32 @@
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
+	"engines": {
+		"node": "24.14.1"
+	},
 	"scripts": {
-		"build": "echo \"@pe/gsap: TypeScript library\"",
+		"build": "tsc -p tsconfig.json --noEmit",
 		"check": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
-		"gsap": "^3.12.7"
+		"gsap": "^3.14.2"
 	},
 	"exports": {
 		"./registry": "./src/registry.ts",
 		"./actions/fadeIn": "./src/actions/fadeIn.ts",
+		"./actions/stagger": "./src/actions/stagger.ts",
+		"./actions/counter": "./src/actions/counter.ts",
+		"./actions/morphPath": "./src/actions/morphPath.ts",
+		"./actions/parallax": "./src/actions/parallax.ts",
+		"./actions/magnetic": "./src/actions/magnetic.ts",
+		"./actions/scrambleText": "./src/actions/scrambleText.ts",
+		"./actions/splitText": "./src/actions/splitText.ts",
+		"./actions/drawSVG": "./src/actions/drawSVG.ts",
+		"./actions/flip": "./src/actions/flip.ts",
 		"./utils/reducedMotion": "./src/utils/reducedMotion.ts"
 	},
 	"devDependencies": {
-		"svelte": "^5.16.0",
-		"typescript": "^5.7.2"
+		"svelte": "^5.55.1",
+		"typescript": "^6.0.2"
 	}
 }

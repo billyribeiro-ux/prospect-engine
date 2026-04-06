@@ -3,22 +3,33 @@
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
+	"engines": {
+		"node": "24.14.1"
+	},
 	"scripts": {
-		"build": "echo \"@pe/ui: Svelte components consumed from source\"",
-		"check": "echo \"@pe/ui: checked via @pe/web svelte-check\""
+		"build": "svelte-check --tsconfig ./tsconfig.json",
+		"check": "svelte-check --tsconfig ./tsconfig.json"
 	},
 	"exports": {
 		"./Button.svelte": "./src/Button.svelte",
-		"./Icon.svelte": "./src/Icon.svelte"
+		"./Icon.svelte": "./src/Icon.svelte",
+		"./Badge.svelte": "./src/Badge.svelte",
+		"./Modal.svelte": "./src/Modal.svelte",
+		"./Toast.svelte": "./src/Toast.svelte",
+		"./Tooltip.svelte": "./src/Tooltip.svelte",
+		"./DataGrid.svelte": "./src/DataGrid.svelte",
+		"./VirtualList.svelte": "./src/VirtualList.svelte"
 	},
 	"peerDependencies": {
 		"@iconify/svelte": "^5.0.0",
-		"svelte": "^5.0.0"
+		"svelte": "^5.46.4"
 	},
 	"devDependencies": {
-		"@sveltejs/vite-plugin-svelte": "^5.0.3",
-		"svelte": "^5.16.0",
-		"svelte-check": "^4.1.1",
-		"typescript": "^5.7.2"
+		"@iconify/svelte": "^5.2.1",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"svelte": "^5.55.1",
+		"svelte-check": "^4.4.6",
+		"typescript": "^6.0.2",
+		"vite": "^8.0.5"
 	}
 }

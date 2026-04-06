@@ -12,7 +12,7 @@ class LayoutState {
 	clampSplitPercent(value: number): number {
 		return Math.min(
 			PRIMARY_PANE_SPLIT_MAX_PERCENT,
-			Math.max(PRIMARY_PANE_SPLIT_MIN_PERCENT, value)
+			Math.max(PRIMARY_PANE_SPLIT_MIN_PERCENT, value),
 		);
 	}
 

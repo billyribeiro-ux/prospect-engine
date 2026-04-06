@@ -1,6 +1,6 @@
 <script lang="ts">
-	import ThemeControls from "$lib/components/layout/ThemeControls.svelte";
-	import { messages } from "$lib/i18n/messages/en";
+import ThemeControls from "$lib/components/layout/ThemeControls.svelte";
+import { messages } from "$lib/i18n/messages/en";
 </script>
 
 <main id="main" class="marketing-hero" aria-labelledby="marketing-title">

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Iconify from "@iconify/svelte";
+import Iconify from "@iconify/svelte";
 
-	interface Props {
-		icon: string;
-		"aria-hidden"?: boolean;
-	}
+interface Props {
+	icon: string;
+	"aria-hidden"?: boolean;
+}
 
-	let { icon, "aria-hidden": ariaHidden = true }: Props = $props();
+let { icon, "aria-hidden": ariaHidden = true }: Props = $props();
 </script>
 
 <span class="pe-icon" aria-hidden={ariaHidden ? "true" : undefined}>

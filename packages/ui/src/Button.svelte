@@ -1,19 +1,14 @@
 <script lang="ts">
-	import type { Snippet } from "svelte";
+import type { Snippet } from "svelte";
 
-	interface Props {
-		type?: "button" | "submit" | "reset";
-		variant?: "primary" | "ghost" | "danger";
-		disabled?: boolean;
-		children: Snippet;
-	}
+interface Props {
+	type?: "button" | "submit" | "reset";
+	variant?: "primary" | "ghost" | "danger";
+	disabled?: boolean;
+	children: Snippet;
+}
 
-	let {
-		type = "button",
-		variant = "primary",
-		disabled = false,
-		children,
-	}: Props = $props();
+let { type = "button", variant = "primary", disabled = false, children }: Props = $props();
 </script>
 
 <button class="pe-button" class:pe-button--ghost={variant === "ghost"} class:pe-button--danger={variant === "danger"} {type} {disabled}>{@render children()}</button>

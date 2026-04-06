@@ -1,23 +1,20 @@
 <script lang="ts">
-	import { page } from "$app/state";
-	import { APP_NAV_ITEMS } from "$lib/constants/navigation";
-	import type { ShellNavLabels } from "$lib/i18n/messages/en";
+import { page } from "$app/state";
+import { APP_NAV_ITEMS } from "$lib/constants/navigation";
+import type { ShellNavLabels } from "$lib/i18n/messages/en";
 
-	interface Props {
-		readonly navLabels: ShellNavLabels;
-		readonly landmarkLabel: string;
-	}
+interface Props {
+	readonly navLabels: ShellNavLabels;
+	readonly landmarkLabel: string;
+}
 
-	let { navLabels, landmarkLabel }: Props = $props();
+let { navLabels, landmarkLabel }: Props = $props();
 
-	const pathname = $derived(page.url.pathname);
+const pathname = $derived(page.url.pathname);
 
-	function labelFor(
-		id: (typeof APP_NAV_ITEMS)[number]["id"],
-		m: ShellNavLabels
-	): string {
-		return m[id];
-	}
+function labelFor(id: (typeof APP_NAV_ITEMS)[number]["id"], m: ShellNavLabels): string {
+	return m[id];
+}
 </script>
 
 <nav class="app-tab-bar" aria-label={landmarkLabel}>

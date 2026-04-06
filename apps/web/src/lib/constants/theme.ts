@@ -1,5 +1,4 @@
-import type { DensityMode } from "@pe/types/theme";
-import type { ThemeId } from "@pe/types/theme";
+import type { DensityMode, ThemeId } from "@pe/types/theme";
 
 export const THEME_COOKIE_NAME = "pe_theme";
 

@@ -1,7 +1,11 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"organizeImports": {
-		"enabled": true
+	"$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
 	},
 	"linter": {
 		"enabled": true,
@@ -24,6 +28,22 @@
 		"lineWidth": 100
 	},
 	"files": {
-		"ignore": ["**/node_modules/**", "**/.svelte-kit/**", "**/build/**", "**/dist/**"]
-	}
+		"includes": ["**", "!**/node_modules", "!**/.svelte-kit", "!**/build", "!**/dist"]
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.svelte"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnusedImports": "off",
+						"noUnusedVariables": "off"
+					},
+					"style": {
+						"useImportType": "off"
+					}
+				}
+			}
+		}
+	]
 }

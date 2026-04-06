@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
+	"engines": {
+		"node": "24.14.1"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -10,20 +13,20 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
 	},
 	"dependencies": {
-		"@iconify/svelte": "^5.0.0",
+		"@iconify/svelte": "^5.2.1",
 		"@pe/gsap": "workspace:*",
 		"@pe/tokens": "workspace:*",
 		"@pe/types": "workspace:*",
 		"@pe/ui": "workspace:*"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^3.3.1",
-		"@sveltejs/kit": "^2.15.1",
-		"@sveltejs/vite-plugin-svelte": "^5.0.3",
-		"@types/node": "^25.5.2",
-		"svelte": "^5.16.0",
-		"svelte-check": "^4.1.1",
-		"typescript": "^5.7.2",
-		"vite": "^6.0.7"
+		"@sveltejs/adapter-auto": "^7.0.1",
+		"@sveltejs/kit": "^2.56.1",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"@types/node": "^24.0.0",
+		"svelte": "^5.55.1",
+		"svelte-check": "^4.4.6",
+		"typescript": "^6.0.2",
+		"vite": "^8.0.5"
 	}
 }

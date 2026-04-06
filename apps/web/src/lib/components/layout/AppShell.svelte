@@ -1,23 +1,23 @@
 <script lang="ts">
-	import Icon from "@iconify/svelte";
-	import type { Snippet } from "svelte";
-	import CommandPalette from "$lib/components/layout/CommandPalette.svelte";
-	import PaneDivider from "$lib/components/layout/PaneDivider.svelte";
-	import Sidebar from "$lib/components/layout/Sidebar.svelte";
-	import TabBar from "$lib/components/layout/TabBar.svelte";
-	import { messages } from "$lib/i18n/messages/en";
-	import { appState } from "$lib/stores/app.svelte";
-	import { layoutState } from "$lib/stores/layout.svelte";
+import Icon from "@iconify/svelte";
+import type { Snippet } from "svelte";
+import CommandPalette from "$lib/components/layout/CommandPalette.svelte";
+import PaneDivider from "$lib/components/layout/PaneDivider.svelte";
+import Sidebar from "$lib/components/layout/Sidebar.svelte";
+import TabBar from "$lib/components/layout/TabBar.svelte";
+import { messages } from "$lib/i18n/messages/en";
+import { appState } from "$lib/stores/app.svelte";
+import { layoutState } from "$lib/stores/layout.svelte";
 
-	interface Props {
-		children: Snippet;
-	}
+interface Props {
+	children: Snippet;
+}
 
-	let { children }: Props = $props();
+let { children }: Props = $props();
 
-	const shell = messages.app.shell;
+const shell = messages.app.shell;
 
-	const secondaryFlex = $derived(100 - layoutState.primaryPaneSplitPercent);
+const secondaryFlex = $derived(100 - layoutState.primaryPaneSplitPercent);
 </script>
 
 <div class="app-shell">
