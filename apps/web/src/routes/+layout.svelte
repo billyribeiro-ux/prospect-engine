@@ -3,6 +3,7 @@ import "../app.css";
 import type { Snippet } from "svelte";
 import { browser } from "$app/environment";
 import { messages } from "$lib/i18n/messages/en";
+import { customThemeState } from "$lib/stores/customTheme.svelte";
 import { themeState } from "$lib/stores/theme.svelte";
 import type { LayoutData } from "./$types";
 
@@ -18,6 +19,7 @@ $effect(() => {
 		return;
 	}
 	themeState.hydrateFromServer(data.theme, data.density);
+	customThemeState.applyAll();
 });
 </script>
 
