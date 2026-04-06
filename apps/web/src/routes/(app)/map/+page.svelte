@@ -1,10 +1,32 @@
 <script lang="ts">
+import HeatmapLayer from "$lib/components/map/HeatmapLayer.svelte";
+import MapView from "$lib/components/map/MapView.svelte";
+import MarkerLayer from "$lib/components/map/MarkerLayer.svelte";
+import RouteOverlay from "$lib/components/map/RouteOverlay.svelte";
 import { messages } from "$lib/i18n/messages/en";
+
+let routesOn = $state(false);
 </script>
 
 <div class="workspace-page">
 	<h1 class="workspace-page__title">{messages.app.shell.nav.map}</h1>
-	<p class="workspace-page__body">MapLibre map views will appear here.</p>
+	<p class="workspace-page__body">
+		MapLibre integration will mount in the canvas below. Layers reflect UI state only for now.
+	</p>
+
+	<MapView title="Territory map">
+		<div class="map-layers">
+			<MarkerLayer count={0} />
+			<HeatmapLayer visible={true} />
+			<div class="map-layers__row">
+				<label class="map-layers__toggle">
+					<input type="checkbox" bind:checked={routesOn} />
+					<span>Route overlay</span>
+				</label>
+				<RouteOverlay visible={routesOn} />
+			</div>
+		</div>
+	</MapView>
 </div>
 
 <style>
@@ -18,8 +40,31 @@ import { messages } from "$lib/i18n/messages/en";
 
 		.workspace-page__body {
 			margin-block-start: var(--pe-space-3);
-			margin-block-end: 0;
+			margin-block-end: var(--pe-space-6);
 			font-size: var(--pe-density-font-size);
+			color: var(--pe-text-secondary);
+		}
+
+		.map-layers {
+			display: flex;
+			flex-direction: column;
+			gap: var(--pe-space-3);
+			margin-block-start: var(--pe-space-3);
+		}
+
+		.map-layers__row {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: var(--pe-space-4);
+		}
+
+		.map-layers__toggle {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--pe-space-2);
+			font-family: var(--pe-font-family);
+			font-size: var(--pe-font-size-sm);
 			color: var(--pe-text-secondary);
 		}
 	}
