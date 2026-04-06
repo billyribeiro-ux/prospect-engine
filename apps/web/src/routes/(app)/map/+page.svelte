@@ -1,4 +1,5 @@
 <script lang="ts">
+import { onMount } from "svelte";
 import HeatmapLayer from "$lib/components/map/HeatmapLayer.svelte";
 import MapView from "$lib/components/map/MapView.svelte";
 import MarkerLayer from "$lib/components/map/MarkerLayer.svelte";
@@ -6,17 +7,30 @@ import RouteOverlay from "$lib/components/map/RouteOverlay.svelte";
 import { messages } from "$lib/i18n/messages/en";
 
 let routesOn = $state(false);
+let markerCount = $state(0);
+
+onMount(() => {
+	void (async () => {
+		try {
+			const res = await fetch("/api/v1/map");
+			const data = (await res.json()) as { markers?: unknown[] };
+			markerCount = data.markers?.length ?? 0;
+		} catch {
+			markerCount = 0;
+		}
+	})();
+});
 </script>
 
 <div class="workspace-page">
 	<h1 class="workspace-page__title">{messages.app.shell.nav.map}</h1>
 	<p class="workspace-page__body">
-		MapLibre integration will mount in the canvas below. Layers reflect UI state only for now.
+		MapLibre renders below. Marker count reflects CRM leads that include latitude and longitude from the API.
 	</p>
 
 	<MapView title="Territory map">
 		<div class="map-layers">
-			<MarkerLayer count={0} />
+			<MarkerLayer count={markerCount} />
 			<HeatmapLayer visible={true} />
 			<div class="map-layers__row">
 				<label class="map-layers__toggle">

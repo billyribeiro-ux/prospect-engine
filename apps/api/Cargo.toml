@@ -12,6 +12,12 @@ path = "src/main.rs"
 [dependencies]
 queue = { path = "../../crates/queue" }
 crawler = { path = "../../crates/crawler" }
+scorer = { path = "../../crates/scorer" }
+lettre = { version = "0.11", default-features = false, features = [
+	"smtp-transport",
+	"builder",
+	"native-tls",
+] }
 argon2 = "0.5"
 axum = "0.8"
 chrono = { version = "0.4", features = ["serde"] }
@@ -30,4 +36,5 @@ tower-http = { version = "0.6", features = ["cors", "trace", "set-header", "requ
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1", features = ["v4"] }
+url = "2"
 printpdf = "0.7"

@@ -62,7 +62,7 @@ prospect-engine/
   - `POST /api/v1/auth/login` — same response shape
   - `POST /api/v1/auth/refresh` — body `{ refresh_token }`
   - `GET /api/v1/auth/session` — optional `Authorization: Bearer <jwt>`
-- Domain slices: `GET /api/v1/discovery` (optional `?url=` HTML fetch via `crawler`), `GET/POST /api/v1/leads`, `POST /api/v1/email/send` (stub **202**), `GET /api/v1/reports/export` (minimal PDF), stubs for audit, pipeline, map metadata, `GET /api/v1/ws` → **501** (`websocket_not_implemented`)
+- Domain slices: `GET /api/v1/discovery` (optional `?url=` HTML fetch), `POST /api/v1/discovery/jobs` (enqueue URL crawl job id), `GET /api/v1/audit` (optional `?url=`) and `POST /api/v1/audit/run` (`{ html }` and/or `{ url }`), `GET/POST /api/v1/leads` (optional `latitude` / `longitude`), `GET /api/v1/map` (markers from geocoded leads), `POST /api/v1/email/send` (SMTP when `PE_SMTP_*` set; else stub **202** + `email_events` row), `GET /api/v1/reports/export` (minimal PDF), pipeline stub, `GET /api/v1/ws` → **501** (`websocket_not_implemented`)
 - **Jobs queue** (in-memory): `POST /api/v1/jobs` `{ job_id }` → **202**; `GET /api/v1/queue/stats` → `{ depth }` (uses `crates/queue` `MemoryQueue`)
 - Env: `PE_DATABASE_URL` (default `sqlite:data/pe.db`), `PE_JWT_SECRET` (required in release, ≥ 32 chars), `PE_CORS_ALLOW_ORIGINS` (comma-separated; **required in release**; debug may omit → permissive CORS with warning)
 - Enterprise hardening checklist: **§6 Phase 2b**
@@ -94,14 +94,14 @@ prospect-engine/
 - [x] HTTP integration tests (`apps/api/tests/`) against full middleware stack (`build_http_app`)
 - [x] **`docs/SECURITY.md`** — auth model, secrets, HTTP surface, client token storage, observability
 
-### Phase 3 — Domain features — **partial**
+### Phase 3 — Domain features — **done (MVP)**
 
-- [x] UI surfaces for discovery, audit, CRM, map, reports, **email**
-- [x] **Discovery** crawler fetch (`crates/crawler` + optional `?url=` on `GET /api/v1/discovery`); scheduling / scale-out = future
-- [ ] **Audit** scoring pipeline — `scorer` stubbed
-- [x] **CRM** persistence — `leads` table + `GET/POST /api/v1/leads` (MVP)
-- [x] **Map** MapLibre GL in `MapView.svelte` (demo tile style); full markers/heatmap = future
-- [ ] **Email** send/track providers (SMTP stub **202** on `POST /api/v1/email/send`)
+- [x] UI surfaces for discovery, audit, CRM, map, reports, **email** — audit/email/map pages call the API
+- [x] **Discovery** — `crates/crawler` + `GET /api/v1/discovery?url=` + `POST /api/v1/discovery/jobs` (in-memory queue); distributed scheduling = future
+- [x] **Audit** — `crates/scorer` heuristic HTML scoring (7 dimensions + composite); `GET /audit`, `POST /audit/run`
+- [x] **CRM** — `leads` + optional geo columns + `GET/POST /api/v1/leads`
+- [x] **Map** — MapLibre in `MapView.svelte` + `GET /api/v1/map` markers from leads with coordinates; heatmap/routing depth = future
+- [x] **Email** — `POST /api/v1/email/send` via **lettre** when `PE_SMTP_*` configured; `email_events` audit trail; open/click analytics = future
 - [x] **Reports** PDF — minimal `GET /api/v1/reports/export` (printpdf); richer templates = future
 
 ### Phase 4 — Desktop — **done (scaffold)**
@@ -141,10 +141,11 @@ Single **quality** job: Node **24.14.1**, Rust stable (fmt, clippy), `pnpm insta
 
 - `pnpm run check` green on Node **24.14.1** (includes Biome, `cargo fmt --check`, clippy, tests)
 - Phase **2b** items (§6) satisfied for review builds
-- Core shell routes + auth + API proxy + SQLite auth DB
+- Phase **3** MVP (§6): audit scoring, discovery jobs, CRM+map markers, SMTP-capable email, PDF export, wired workspace UI
+- Core shell routes + auth + API proxy + DB migrations
 - Tauri app present; optional native `build:tauri` for installers
-- Further product depth (crawler, MapLibre, SMTP, PDF) is **Phase 3+** work, not missing scaffolding.
+- Durable queues, full deliverability analytics, headless browser audits, and ML-backed scoring are **post-MVP** product depth.
 
 ---
 
-*Last updated: Phase 2 refresh tokens + Postgres path + Phase 3 CRM/discovery/PDF/MapLibre stubs + ML contracts; `docker compose` for Postgres; `pnpm run check` + build.*
+*Last updated: Phase 3 MVP complete (scorer, SMTP + `email_events`, geo leads, discovery jobs, UI wiring); `pnpm run check` + build.*

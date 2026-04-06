@@ -21,6 +21,9 @@ pub enum ApiError {
 
     #[error("internal")]
     Internal,
+
+    #[error("rate limited")]
+    RateLimited,
 }
 
 impl ApiError {
@@ -32,6 +35,7 @@ impl ApiError {
             Self::Validation(_) => "validation",
             Self::Conflict(_) => "conflict",
             Self::Internal => "internal",
+            Self::RateLimited => "rate_limited",
         }
     }
 }
@@ -51,6 +55,7 @@ impl IntoResponse for ApiError {
             Self::Validation(msg) => (StatusCode::BAD_REQUEST, msg.clone()),
             Self::Conflict(msg) => (StatusCode::CONFLICT, msg.clone()),
             Self::Internal => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            Self::RateLimited => (StatusCode::TOO_MANY_REQUESTS, self.to_string()),
         };
 
         if status == StatusCode::INTERNAL_SERVER_ERROR {

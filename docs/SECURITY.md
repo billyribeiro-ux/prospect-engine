@@ -5,8 +5,9 @@ This document summarizes how **ProspectEngine** handles authentication, transpor
 ## Authentication
 
 - **Passwords** are hashed with **Argon2** (salt per user). Plain-text passwords are never stored.
-- **Sessions** use **JWTs** signed with **HS256**. Only that algorithm is accepted when validating tokens.
-- **Token lifetime** is seven days (`exp` claim). Validation uses a small **clock skew leeway** (60 seconds) for distributed clocks.
+- **Sessions** use **JWTs** signed with **HS256** for the **access token** (short TTL, default 15 minutes). Only that algorithm is accepted when validating tokens.
+- **Refresh tokens** are opaque random strings stored as **SHA-256** hashes; each login/register/refresh issues a new refresh token (rotation).
+- **Token lifetime** — access JWT `exp` is short-lived; refresh tokens are long-lived (default 30 days) and revocable per rotation.
 - **Login responses** use the same **401 Unauthorized** for unknown users and wrong passwords to avoid account enumeration.
 
 ## Secrets and configuration
@@ -15,7 +16,11 @@ This document summarizes how **ProspectEngine** handles authentication, transpor
 |----------|---------|
 | `PE_JWT_SECRET` | HMAC key for JWT signing. **Required in release builds** (minimum 32 characters). Use a cryptographically random value from a secrets manager. |
 | `PE_CORS_ALLOW_ORIGINS` | Comma-separated list of allowed browser `Origin` values. **Required in release builds.** Omit only in local debug (permissive CORS with a warning). |
-| `PE_DATABASE_URL` | SQLite file URL. Protect the file with OS permissions and backup policies. |
+| `PE_DATABASE_URL` | `SQLite` file URL or `PostgreSQL` connection string. Protect credentials and files with OS permissions and backup policies. |
+| `PE_SMTP_HOST` | Optional. When set (with `PE_SMTP_FROM`), `POST /api/v1/email/send` relays mail via SMTP. |
+| `PE_SMTP_PORT` | SMTP port (default **587**). |
+| `PE_SMTP_USER` / `PE_SMTP_PASSWORD` | Optional SMTP AUTH credentials. |
+| `PE_SMTP_FROM` | `From` address (e.g. `ProspectEngine <mail@example.com>`). Defaults to `noreply@localhost` if unset. |
 
 Never commit real secrets. Use `.env` only on developer machines; production should inject env vars via your platform.
 
@@ -26,9 +31,14 @@ Never commit real secrets. Use `.env` only on developer machines; production sho
 - **Security headers** on responses include `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, and a restrictive `Permissions-Policy`.
 - **Request correlation**: responses include **`x-request-id`** (UUID). Clients should log it when reporting issues.
 
+## Email and audit trail
+
+- Outbound sends are recorded in **`email_events`** (`status`: `stub`, `sent`, or `failed`; optional `detail` for errors).
+- Without `PE_SMTP_HOST`, the API accepts requests (**202**) and persists a **stub** row only (no network relay).
+
 ## Client-side token storage
 
-The web app may store JWTs in browser storage (for example `localStorage`) for SPA convenience. That implies **XSS is a token theft risk**. Mitigations include a strict **Content Security Policy**, dependency review, and avoiding `dangerouslySetInnerHTML` patterns. For higher assurance, consider httpOnly cookies with CSRF protections (future work).
+The web app stores access and refresh tokens in browser storage (`localStorage`) for SPA convenience. That implies **XSS is a token theft risk**. Mitigations include a strict **Content Security Policy**, dependency review, and avoiding unsafe HTML injection. For higher assurance, consider httpOnly cookies with CSRF protections (future work).
 
 ## Observability
 
@@ -42,5 +52,6 @@ The web app may store JWTs in browser storage (for example `localStorage`) for S
 | Credential stuffing | Argon2; generic errors on login; rate limiting can be added at the edge |
 | SQL injection | Parameterized queries via SQLx |
 | XSS stealing JWT | CSP + hygiene; document risk for reviewers |
+| SMTP abuse | Authenticate API routes for production sends; rate-limit `POST /email/send` at the edge |
 
 This is not an exhaustive list; add network-level controls (TLS termination, WAF, IP allowlists) as required by your deployment.

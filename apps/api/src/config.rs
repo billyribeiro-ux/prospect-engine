@@ -1,6 +1,16 @@
 use std::env;
 use std::io;
 
+/// SMTP relay settings when `PE_SMTP_HOST` is set (optional).
+#[derive(Debug, Clone)]
+pub struct SmtpConfig {
+    pub host: String,
+    pub port: u16,
+    pub username: Option<String>,
+    pub password: Option<String>,
+    pub from: String,
+}
+
 /// Runtime configuration loaded from environment variables.
 #[derive(Debug, Clone)]
 pub struct AppConfig {
@@ -11,6 +21,35 @@ pub struct AppConfig {
     /// Allowed browser `Origin` values for CORS (comma-separated). Empty means permissive CORS
     /// in debug builds only; release builds require an explicit list.
     pub cors_allow_origins: Vec<String>,
+    /// When `Some`, `POST /email/send` attempts delivery via SMTP.
+    pub smtp: Option<SmtpConfig>,
+    /// Max `POST /email/send` requests per client key per rolling minute (`0` = disabled).
+    pub email_rate_limit_per_min: u32,
+    /// Optional absolute origin for tracking URLs in JSON responses (e.g. `https://api.example.com`).
+    pub public_api_origin: Option<String>,
+}
+
+fn load_smtp() -> Option<SmtpConfig> {
+    let host = env::var("PE_SMTP_HOST").ok()?.trim().to_string();
+    if host.is_empty() {
+        return None;
+    }
+    let port = env::var("PE_SMTP_PORT")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(587);
+    let username = env::var("PE_SMTP_USER")
+        .ok()
+        .filter(|s| !s.trim().is_empty());
+    let password = env::var("PE_SMTP_PASSWORD").ok().filter(|s| !s.is_empty());
+    let from = env::var("PE_SMTP_FROM").unwrap_or_else(|_| "noreply@localhost".to_string());
+    Some(SmtpConfig {
+        host,
+        port,
+        username,
+        password,
+        from,
+    })
 }
 
 pub fn load() -> Result<AppConfig, io::Error> {
@@ -66,12 +105,30 @@ pub fn load() -> Result<AppConfig, io::Error> {
         }
     }
 
+    let smtp = load_smtp();
+    if smtp.is_some() {
+        tracing::info!("PE_SMTP_HOST set: outbound email delivery enabled");
+    }
+
+    let email_rate_limit_per_min = env::var("PE_EMAIL_RATE_LIMIT_PER_MIN")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(20);
+
+    let public_api_origin = env::var("PE_PUBLIC_API_ORIGIN")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
+
     Ok(AppConfig {
         bind_host,
         bind_port,
         database_url,
         jwt_secret,
         cors_allow_origins,
+        smtp,
+        email_rate_limit_per_min,
+        public_api_origin,
     })
 }
 
@@ -85,6 +142,9 @@ impl AppConfig {
             database_url: "sqlite::memory:?cache=shared".to_string(),
             jwt_secret: jwt_secret.to_string(),
             cors_allow_origins: vec![],
+            smtp: None,
+            email_rate_limit_per_min: 0,
+            public_api_origin: None,
         }
     }
 }

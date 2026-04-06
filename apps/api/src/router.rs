@@ -15,7 +15,12 @@ pub fn api_router(state: AppState) -> Router {
         .route("/auth/login", post(handlers::auth::post_login))
         .route("/auth/refresh", post(handlers::auth::post_refresh))
         .route("/discovery", get(handlers::discovery::get_discovery))
+        .route(
+            "/discovery/jobs",
+            post(handlers::discovery::post_discovery_job),
+        )
         .route("/audit", get(handlers::audit::get_audit))
+        .route("/audit/run", post(handlers::audit::post_audit_run))
         .route("/pipeline", get(handlers::pipeline::get_pipeline))
         .route("/reports", get(handlers::reports::get_reports))
         .route("/reports/export", get(handlers::reports::get_report_pdf))
