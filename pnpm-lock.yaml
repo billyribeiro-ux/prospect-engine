@@ -26,12 +26,18 @@ importers:
       '@iconify/svelte':
         specifier: ^5.0.0
         version: 5.2.1(svelte@5.55.1)
+      '@pe/gsap':
+        specifier: workspace:*
+        version: link:../../packages/gsap
       '@pe/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
       '@pe/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@pe/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: ^3.3.1
@@ -58,12 +64,44 @@ importers:
         specifier: ^6.0.7
         version: 6.4.2(@types/node@25.5.2)
 
+  packages/gsap:
+    dependencies:
+      gsap:
+        specifier: ^3.12.7
+        version: 3.14.2
+    devDependencies:
+      svelte:
+        specifier: ^5.16.0
+        version: 5.55.1
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
   packages/tokens: {}
 
   packages/types:
-    dependencies:
+    devDependencies:
       typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
+  packages/ui:
+    dependencies:
+      '@iconify/svelte':
         specifier: ^5.0.0
+        version: 5.2.1(svelte@5.55.1)
+    devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^5.0.3
+        version: 5.1.1(svelte@5.55.1)(vite@6.4.2(@types/node@25.5.2))
+      svelte:
+        specifier: ^5.16.0
+        version: 5.55.1
+      svelte-check:
+        specifier: ^4.1.1
+        version: 4.4.6(picomatch@4.0.4)(svelte@5.55.1)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.2
         version: 5.9.3
 
 packages:
@@ -769,6 +807,9 @@ packages:
   globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
+
+  gsap@3.14.2:
+    resolution: {integrity: sha512-P8/mMxVLU7o4+55+1TCnQrPmgjPKnwkzkXOK1asnR9Jg2lna4tEY5qBJjMmAaOBDDZWtlRjBXjLa0w53G/uBLA==}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -1649,6 +1690,8 @@ snapshots:
       is-glob: 4.0.3
 
   globals@14.0.0: {}
+
+  gsap@3.14.2: {}
 
   has-flag@4.0.0: {}
 
