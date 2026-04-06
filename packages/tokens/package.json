@@ -1,0 +1,16 @@
+{
+	"name": "@pe/tokens",
+	"version": "1.0.0",
+	"private": true,
+	"exports": {
+		"./index.css": "./src/index.css",
+		"./primitives.css": "./src/primitives.css",
+		"./semantic.css": "./src/semantic.css",
+		"./component.css": "./src/component.css",
+		"./density.css": "./src/density.css",
+		"./themes/midnight.css": "./src/themes/midnight.css",
+		"./themes/dawn.css": "./src/themes/dawn.css",
+		"./themes/terminal.css": "./src/themes/terminal.css",
+		"./themes/oled.css": "./src/themes/oled.css"
+	}
+}

@@ -1,0 +1,28 @@
+@layer theme {
+	[data-theme="oled"] {
+		color-scheme: dark;
+
+		--pe-surface-base: oklch(0 0 0);
+		--pe-surface-raised: oklch(0.08 0 0);
+		--pe-surface-overlay: oklch(0.1 0 0);
+		--pe-surface-sunken: oklch(0 0 0);
+
+		--pe-text-primary: var(--pe-color-gray-50);
+		--pe-text-secondary: var(--pe-color-gray-400);
+		--pe-text-tertiary: var(--pe-color-gray-600);
+		--pe-text-inverse: oklch(0 0 0);
+
+		--pe-interactive-primary: oklch(0.65 0.18 250);
+		--pe-interactive-hover: oklch(0.6 0.19 250);
+		--pe-interactive-active: oklch(0.52 0.17 250);
+
+		--pe-border-subtle: oklch(0.22 0.01 250);
+		--pe-border-default: oklch(0.32 0.012 250);
+		--pe-border-strong: oklch(0.45 0.014 250);
+
+		--pe-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.6);
+		--pe-shadow-md: 0 2px 8px oklch(0 0 0 / 0.7);
+		--pe-shadow-lg: 0 8px 24px oklch(0 0 0 / 0.75);
+		--pe-shadow-xl: 0 16px 48px oklch(0 0 0 / 0.8);
+	}
+}

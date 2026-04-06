@@ -1,0 +1,25 @@
+@layer theme {
+	[data-density="compact"] {
+		--pe-density-row-height: 28px;
+		--pe-density-font-size: var(--pe-font-size-xs);
+		--pe-density-padding: var(--pe-space-1) var(--pe-space-2);
+		--pe-density-gap: var(--pe-space-1);
+		--pe-density-icon-size: 14px;
+	}
+
+	[data-density="comfortable"] {
+		--pe-density-row-height: 36px;
+		--pe-density-font-size: var(--pe-font-size-base);
+		--pe-density-padding: var(--pe-space-2) var(--pe-space-3);
+		--pe-density-gap: var(--pe-space-2);
+		--pe-density-icon-size: 16px;
+	}
+
+	[data-density="spacious"] {
+		--pe-density-row-height: 44px;
+		--pe-density-font-size: var(--pe-font-size-md);
+		--pe-density-padding: var(--pe-space-3) var(--pe-space-4);
+		--pe-density-gap: var(--pe-space-3);
+		--pe-density-icon-size: 18px;
+	}
+}

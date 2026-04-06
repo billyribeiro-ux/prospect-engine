@@ -1,0 +1,38 @@
+@layer reset {
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	html {
+		text-size-adjust: 100%;
+	}
+
+	body {
+		margin: 0;
+		min-block-size: 100dvb;
+		font-family: var(--pe-font-family);
+		font-size: var(--pe-density-font-size, var(--pe-font-size-base));
+		line-height: 1.5;
+		background: var(--pe-surface-base);
+		color: var(--pe-text-primary);
+	}
+
+	img,
+	picture,
+	video,
+	canvas,
+	svg {
+		display: block;
+		max-inline-size: 100%;
+	}
+
+	button,
+	input,
+	select,
+	textarea {
+		font: inherit;
+		color: inherit;
+	}
+}

@@ -1,0 +1,28 @@
+@layer theme {
+	[data-theme="midnight"] {
+		color-scheme: dark;
+
+		--pe-surface-base: var(--pe-color-gray-900);
+		--pe-surface-raised: var(--pe-color-gray-800);
+		--pe-surface-overlay: var(--pe-color-gray-800);
+		--pe-surface-sunken: var(--pe-color-gray-950);
+
+		--pe-text-primary: var(--pe-color-gray-50);
+		--pe-text-secondary: var(--pe-color-gray-300);
+		--pe-text-tertiary: var(--pe-color-gray-500);
+		--pe-text-inverse: var(--pe-color-gray-900);
+
+		--pe-interactive-primary: oklch(0.62 0.16 240);
+		--pe-interactive-hover: oklch(0.58 0.17 240);
+		--pe-interactive-active: oklch(0.52 0.16 240);
+
+		--pe-border-subtle: var(--pe-color-gray-700);
+		--pe-border-default: var(--pe-color-gray-600);
+		--pe-border-strong: var(--pe-color-gray-500);
+
+		--pe-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.35);
+		--pe-shadow-md: 0 2px 8px oklch(0 0 0 / 0.45);
+		--pe-shadow-lg: 0 8px 24px oklch(0 0 0 / 0.55);
+		--pe-shadow-xl: 0 16px 48px oklch(0 0 0 / 0.65);
+	}
+}

@@ -1,0 +1,11 @@
+@layer tokens {
+	:root {
+		/* Shell / navigation component tokens */
+		--pe-shell-header-block-size: 3rem;
+		--pe-shell-sidebar-inline-size: 16rem;
+		--pe-shell-sidebar-inline-size-collapsed: 3rem;
+		--pe-pane-divider-inline-size: 1px;
+		--pe-focus-ring-width: 2px;
+		--pe-focus-ring-offset: 2px;
+	}
+}

@@ -1,0 +1,31 @@
+@layer theme {
+	[data-theme="terminal"] {
+		color-scheme: dark;
+
+		--pe-surface-base: oklch(0.12 0.02 145);
+		--pe-surface-raised: oklch(0.16 0.025 145);
+		--pe-surface-overlay: oklch(0.18 0.03 145);
+		--pe-surface-sunken: oklch(0.1 0.01 145);
+
+		--pe-text-primary: oklch(0.78 0.18 145);
+		--pe-text-secondary: oklch(0.62 0.12 145);
+		--pe-text-tertiary: oklch(0.48 0.08 145);
+		--pe-text-inverse: oklch(0.12 0.02 145);
+
+		--pe-interactive-primary: oklch(0.72 0.2 145);
+		--pe-interactive-hover: oklch(0.68 0.21 145);
+		--pe-interactive-active: oklch(0.6 0.18 145);
+
+		--pe-status-success: oklch(0.72 0.2 145);
+		--pe-status-info: oklch(0.65 0.12 200);
+
+		--pe-border-subtle: oklch(0.28 0.04 145);
+		--pe-border-default: oklch(0.36 0.05 145);
+		--pe-border-strong: oklch(0.46 0.06 145);
+
+		--pe-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.35);
+		--pe-shadow-md: 0 2px 8px oklch(0 0 0 / 0.45);
+		--pe-shadow-lg: 0 8px 24px oklch(0 0 0 / 0.55);
+		--pe-shadow-xl: 0 16px 48px oklch(0 0 0 / 0.65);
+	}
+}

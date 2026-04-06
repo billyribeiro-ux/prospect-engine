@@ -1,0 +1,29 @@
+@layer tokens {
+	:root {
+		/* OKLCH: lightness chroma hue */
+		--pe-color-blue-50: oklch(0.95 0.02 240);
+		--pe-color-blue-100: oklch(0.9 0.04 240);
+		--pe-color-blue-500: oklch(0.55 0.15 240);
+		--pe-color-blue-600: oklch(0.5 0.16 240);
+		--pe-color-blue-700: oklch(0.42 0.14 240);
+		--pe-color-blue-900: oklch(0.25 0.08 240);
+
+		--pe-color-red-500: oklch(0.55 0.2 25);
+		--pe-color-green-500: oklch(0.6 0.18 145);
+		--pe-color-amber-500: oklch(0.7 0.15 75);
+
+		/* Neutral scale */
+		--pe-color-gray-0: oklch(1 0 0);
+		--pe-color-gray-50: oklch(0.97 0.005 240);
+		--pe-color-gray-100: oklch(0.93 0.005 240);
+		--pe-color-gray-200: oklch(0.87 0.008 240);
+		--pe-color-gray-300: oklch(0.8 0.01 240);
+		--pe-color-gray-400: oklch(0.65 0.012 240);
+		--pe-color-gray-500: oklch(0.55 0.014 240);
+		--pe-color-gray-600: oklch(0.45 0.014 240);
+		--pe-color-gray-700: oklch(0.35 0.014 240);
+		--pe-color-gray-800: oklch(0.25 0.014 240);
+		--pe-color-gray-900: oklch(0.15 0.012 240);
+		--pe-color-gray-950: oklch(0.1 0.01 240);
+	}
+}

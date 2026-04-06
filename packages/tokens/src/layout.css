@@ -1,0 +1,28 @@
+@layer layout {
+	.pe-skip-link {
+		position: absolute;
+		inset-inline-start: var(--pe-space-4);
+		inset-block-start: var(--pe-space-4);
+		z-index: var(--pe-z-command-palette);
+		padding-block: var(--pe-space-2);
+		padding-inline: var(--pe-space-4);
+		border-radius: var(--pe-radius-md);
+		background: var(--pe-interactive-primary);
+		color: var(--pe-text-inverse);
+		text-decoration: none;
+		transform: translateY(-200%);
+		transition: transform var(--pe-duration-fast) var(--pe-easing-default);
+	}
+
+	.pe-skip-link:focus {
+		transform: translateY(0);
+	}
+
+	.pe-app-root {
+		min-block-size: 100dvb;
+		display: flex;
+		flex-direction: column;
+		background: var(--pe-surface-base);
+		color: var(--pe-text-primary);
+	}
+}

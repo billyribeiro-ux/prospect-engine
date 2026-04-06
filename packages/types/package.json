@@ -1,0 +1,21 @@
+{
+	"name": "@pe/types",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./theme": "./src/theme.ts",
+		"./business": "./src/business.ts",
+		"./audit": "./src/audit.ts",
+		"./pipeline": "./src/pipeline.ts",
+		"./map": "./src/map.ts",
+		"./websocket": "./src/websocket.ts",
+		"./keyboard": "./src/keyboard.ts",
+		"./report": "./src/report.ts",
+		"./user": "./src/user.ts",
+		"./api": "./src/api.ts"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	}
+}

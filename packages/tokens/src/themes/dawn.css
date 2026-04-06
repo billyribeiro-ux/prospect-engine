@@ -1,0 +1,28 @@
+@layer theme {
+	[data-theme="dawn"] {
+		color-scheme: light;
+
+		--pe-surface-base: oklch(0.99 0.008 85);
+		--pe-surface-raised: oklch(0.97 0.012 75);
+		--pe-surface-overlay: oklch(0.99 0.008 85);
+		--pe-surface-sunken: oklch(0.94 0.015 70);
+
+		--pe-text-primary: oklch(0.22 0.02 55);
+		--pe-text-secondary: oklch(0.42 0.03 55);
+		--pe-text-tertiary: oklch(0.58 0.02 55);
+		--pe-text-inverse: oklch(0.99 0.008 85);
+
+		--pe-interactive-primary: oklch(0.52 0.14 250);
+		--pe-interactive-hover: oklch(0.47 0.15 250);
+		--pe-interactive-active: oklch(0.4 0.14 250);
+
+		--pe-border-subtle: oklch(0.9 0.02 80);
+		--pe-border-default: oklch(0.84 0.025 75);
+		--pe-border-strong: oklch(0.72 0.03 70);
+
+		--pe-shadow-sm: 0 1px 2px oklch(0.35 0.02 75 / 0.08);
+		--pe-shadow-md: 0 2px 8px oklch(0.35 0.02 75 / 0.1);
+		--pe-shadow-lg: 0 8px 24px oklch(0.35 0.02 75 / 0.12);
+		--pe-shadow-xl: 0 16px 48px oklch(0.35 0.02 75 / 0.14);
+	}
+}
