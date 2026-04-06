@@ -9,7 +9,7 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"check": "turbo run check && cargo clippy --workspace -- -D warnings",
+		"check": "turbo run check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace",
 		"lint": "biome check .",
 		"format": "biome format --write ."
 	},

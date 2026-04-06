@@ -23,9 +23,24 @@ pub enum ApiError {
     Internal,
 }
 
+impl ApiError {
+    #[must_use]
+    pub const fn code(&self) -> &'static str {
+        match self {
+            Self::NotFound(_) => "not_found",
+            Self::Unauthorized => "unauthorized",
+            Self::Validation(_) => "validation",
+            Self::Conflict(_) => "conflict",
+            Self::Internal => "internal",
+        }
+    }
+}
+
+/// JSON error body aligned with `packages/types` `ApiErrorBody`.
 #[derive(Serialize)]
-struct ErrorBody {
-    error: String,
+pub struct ErrorBody {
+    pub error: String,
+    pub code: &'static str,
 }
 
 impl IntoResponse for ApiError {
@@ -42,6 +57,10 @@ impl IntoResponse for ApiError {
             tracing::error!(error = %self, "internal error");
         }
 
-        (status, Json(ErrorBody { error: message })).into_response()
+        let body = ErrorBody {
+            error: message,
+            code: self.code(),
+        };
+        (status, Json(body)).into_response()
     }
 }

@@ -16,14 +16,18 @@ pub use state::AppState;
 
 use std::net::SocketAddr;
 
-use axum::extract::DefaultBodyLimit;
 use sqlx::sqlite::SqlitePoolOptions;
-use tower_http::cors::CorsLayer;
-use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 
 /// Maximum JSON body size for `/api/v1/*` (auth and future POST endpoints).
-const MAX_JSON_BODY_BYTES: usize = 32 * 1024;
+pub(crate) const MAX_JSON_BODY_BYTES: usize = 32 * 1024;
+
+/// Builds the full HTTP stack (CORS, security headers, request IDs, tracing) around the API router.
+///
+/// Use this in integration tests so behavior matches production. The binary [`run`] uses this internally.
+pub fn build_http_app(state: AppState, cfg: &config::AppConfig) -> axum::Router {
+    middleware::layers::apply_global_layers(router::api_router(state), cfg)
+}
 
 /// Boots tracing, `SQLite`, migrations, and the HTTP server. Intended to be invoked from `main`.
 ///
@@ -48,13 +52,10 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let state = AppState {
         pool,
-        jwt_secret: cfg.jwt_secret,
+        jwt_secret: cfg.jwt_secret.clone(),
     };
 
-    let app = router::api_router(state)
-        .layer(DefaultBodyLimit::max(MAX_JSON_BODY_BYTES))
-        .layer(CorsLayer::permissive())
-        .layer(TraceLayer::new_for_http());
+    let app = build_http_app(state, &cfg);
 
     let addr: SocketAddr = format!("{}:{}", cfg.bind_host, cfg.bind_port).parse()?;
     tracing::info!(%addr, "listening");

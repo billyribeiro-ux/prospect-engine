@@ -2,12 +2,13 @@ export type ApiErrorCode =
 	| "not_found"
 	| "unauthorized"
 	| "validation"
+	| "conflict"
 	| "rate_limited"
 	| "internal";
 
 export interface ApiErrorBody {
 	readonly error: string;
-	readonly code?: ApiErrorCode;
+	readonly code: ApiErrorCode;
 }
 
 export interface ApiSuccessEnvelope<T> {

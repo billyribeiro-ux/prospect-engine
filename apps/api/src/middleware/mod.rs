@@ -1,1 +1,2 @@
-//! HTTP middleware (auth, rate limit, tenant isolation) — wired in later routes.
+//! HTTP middleware layers (security headers, request IDs, CORS, tracing).
+pub mod layers;

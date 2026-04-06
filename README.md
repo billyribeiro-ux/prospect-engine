@@ -34,8 +34,11 @@ Open the SvelteKit app (default Vite port, often `5173`). Register at `/register
 ### API security notes
 
 - **JWT signing**: Set `PE_JWT_SECRET` in production (minimum 32 characters; use a long random value from a secrets manager). The API signs session tokens with HS256; anyone who knows the secret can forge tokens.
+- **CORS**: In **release** builds, set `PE_CORS_ALLOW_ORIGINS` to a comma-separated list of allowed web origins (for example your SvelteKit URL). Debug builds may omit it (permissive CORS with a warning).
 - **Client storage**: The web app may persist the JWT in the browser (for example `localStorage`). Treat that as sensitive: XSS in the app could exfiltrate tokens. Prefer tight CSP and dependency hygiene in production.
 - **SQLite file**: `PE_DATABASE_URL` points at a file on disk; restrict filesystem permissions and backups accordingly.
+
+See **[docs/SECURITY.md](./docs/SECURITY.md)** for the full security model (auth, headers, correlation IDs, and threat notes).
 
 ### Desktop (Tauri)
 
@@ -60,6 +63,7 @@ Production installers: `pnpm build:tauri` (requires platform tooling). CI uses a
 ## Docs
 
 - **[docs/PLAN.md](./docs/PLAN.md)** — architecture, phases, and status
+- **[docs/SECURITY.md](./docs/SECURITY.md)** — API security, secrets, and operational guidance
 
 ## License
 
